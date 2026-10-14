@@ -1,0 +1,56 @@
+# LeadForge discovery targets. Editable here or from the dashboard (Settings > Targets).
+# Each enabled city x enabled category becomes one Places Text Search query.
+defaults:
+  radius_m: 15000
+  max_results_per_target: 60   # Places Text Search returns at most 60 per query (3 pages x 20)
+  rebuild_threshold: 60        # sites scoring below this go to the rebuild queue
+  audit_cache_days: 30
+  places_refresh_days: 30
+
+cities:
+  # India Tier-1
+  - {id: mumbai, name: Mumbai, state: Maharashtra, country: IN, lat: 19.0760, lng: 72.8777, enabled: true}
+  - {id: delhi, name: Delhi, state: Delhi, country: IN, lat: 28.6139, lng: 77.2090, enabled: true, metro: Delhi NCR}
+  - {id: gurugram, name: Gurugram, state: Haryana, country: IN, lat: 28.4595, lng: 77.0266, enabled: true, metro: Delhi NCR}
+  - {id: noida, name: Noida, state: Uttar Pradesh, country: IN, lat: 28.5355, lng: 77.3910, enabled: true, metro: Delhi NCR}
+  - {id: bengaluru, name: Bengaluru, state: Karnataka, country: IN, lat: 12.9716, lng: 77.5946, enabled: true}
+  - {id: hyderabad, name: Hyderabad, state: Telangana, country: IN, lat: 17.3850, lng: 78.4867, enabled: true}
+  - {id: chennai, name: Chennai, state: Tamil Nadu, country: IN, lat: 13.0827, lng: 80.2707, enabled: true}
+  - {id: kolkata, name: Kolkata, state: West Bengal, country: IN, lat: 22.5726, lng: 88.3639, enabled: true}
+  - {id: pune, name: Pune, state: Maharashtra, country: IN, lat: 18.5204, lng: 73.8567, enabled: true}
+  - {id: ahmedabad, name: Ahmedabad, state: Gujarat, country: IN, lat: 23.0225, lng: 72.5714, enabled: true}
+  # USA Tier-1 metros
+  - {id: new-york, name: New York, state: NY, country: US, lat: 40.7128, lng: -74.0060, enabled: true}
+  - {id: los-angeles, name: Los Angeles, state: CA, country: US, lat: 34.0522, lng: -118.2437, enabled: true}
+  - {id: chicago, name: Chicago, state: IL, country: US, lat: 41.8781, lng: -87.6298, enabled: true}
+  - {id: houston, name: Houston, state: TX, country: US, lat: 29.7604, lng: -95.3698, enabled: true}
+  - {id: phoenix, name: Phoenix, state: AZ, country: US, lat: 33.4484, lng: -112.0740, enabled: true}
+  - {id: philadelphia, name: Philadelphia, state: PA, country: US, lat: 39.9526, lng: -75.1652, enabled: true}
+  - {id: san-antonio, name: San Antonio, state: TX, country: US, lat: 29.4241, lng: -98.4936, enabled: true}
+  - {id: san-diego, name: San Diego, state: CA, country: US, lat: 32.7157, lng: -117.1611, enabled: true}
+  - {id: dallas, name: Dallas, state: TX, country: US, lat: 32.7767, lng: -96.7970, enabled: true}
+  - {id: san-jose, name: San Jose, state: CA, country: US, lat: 37.3382, lng: -121.8863, enabled: true}
+  # Optional US metros (enable as needed)
+  - {id: austin, name: Austin, state: TX, country: US, lat: 30.2672, lng: -97.7431, enabled: true}
+  - {id: miami, name: Miami, state: FL, country: US, lat: 25.7617, lng: -80.1918, enabled: false}
+  - {id: seattle, name: Seattle, state: WA, country: US, lat: 47.6062, lng: -122.3321, enabled: false}
+  - {id: boston, name: Boston, state: MA, country: US, lat: 42.3601, lng: -71.0589, enabled: false}
+  - {id: atlanta, name: Atlanta, state: GA, country: US, lat: 33.7490, lng: -84.3880, enabled: false}
+  - {id: san-francisco, name: San Francisco, state: CA, country: US, lat: 37.7749, lng: -122.4194, enabled: false}
+
+categories:
+  # template: which generated-site template this category uses (Phase 5)
+  - {id: dentists, label: Dentists, query: dentist, template: clinic, enabled: true}
+  - {id: restaurants, label: Restaurants, query: restaurant, template: restaurant, enabled: true}
+  - {id: salons-spas, label: Salons & spas, query: beauty salon spa, template: salon, enabled: true}
+  - {id: cafes, label: Cafes, query: cafe, template: restaurant, enabled: false}
+  - {id: clinics, label: Clinics, query: medical clinic, template: clinic, enabled: false}
+  - {id: gyms, label: Gyms, query: gym, template: fitness, enabled: false}
+  - {id: real-estate, label: Real estate, query: real estate agency, template: real-estate, enabled: false}
+  - {id: lawyers, label: Lawyers, query: law firm, template: legal-finance, enabled: false}
+  - {id: accountants, label: CA / CPA firms, query: chartered accountant CPA firm, template: legal-finance, enabled: false}
+  - {id: interior-designers, label: Interior designers, query: interior designer, template: home-services, enabled: false}
+  - {id: wedding-planners, label: Wedding planners, query: wedding planner, template: generic-premium, enabled: false}
+  - {id: auto-repair, label: Auto repair, query: auto repair shop, template: home-services, enabled: false}
+  - {id: coaching-centres, label: Coaching centres, query: coaching centre tutoring, template: generic-premium, enabled: false}
+  - {id: boutique-hotels, label: Boutique hotels, query: boutique hotel, template: generic-premium, enabled: false}

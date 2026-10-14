@@ -1,0 +1,73 @@
+# Local development stack. Run from the repo root: `make up` (or
+# `docker compose -f infra/docker-compose.yml up --build`).
+name: leadforge
+
+x-app-env: &app-env
+  DATABASE_URL: postgresql+psycopg://leadforge:leadforge@postgres:5432/leadforge
+  REDIS_URL: redis://redis:6379/0
+  MOCK_APIS: "true"
+  CORS_ORIGINS: http://localhost:5173
+  JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-dev-only-change-me}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: leadforge
+      POSTGRES_PASSWORD: leadforge
+      POSTGRES_DB: leadforge
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leadforge"]
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+
+  migrate:
+    build: { context: .., dockerfile: infra/api.Dockerfile }
+    environment: *app-env
+    working_dir: /app/api
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  api:
+    build: { context: .., dockerfile: infra/api.Dockerfile }
+    environment: *app-env
+    ports: ["8000:8000"]
+    volumes: ["../config:/app/config"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      retries: 20
+
+  worker:
+    build: { context: .., dockerfile: infra/api.Dockerfile }
+    environment: *app-env
+    volumes: ["../config:/app/config"]
+    command: ["python", "-m", "leadforge_worker.main"]
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+
+  dashboard:
+    build: { context: .., dockerfile: infra/dashboard.Dockerfile }
+    environment:
+      VITE_API_PROXY: http://api:8000
+    ports: ["5173:5173"]
+    depends_on:
+      api: { condition: service_healthy }
+
+volumes:
+  pgdata:

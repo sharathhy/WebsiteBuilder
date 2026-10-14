@@ -1,0 +1,18 @@
+# PLACEHOLDERS. Replace before any email is sent. The outreach sender (Phase 7) will refuse
+# to send while any value below still starts with "TODO".
+agency_name: LeadForge Studio
+sender_name: "TODO: sender name"
+sender_email: "TODO: hello@your-sending-domain.com"
+physical_address: "TODO: street, city, postcode, country"   # required by CAN-SPAM
+booking_url: "TODO: https://cal.com/your-handle"
+monthly_budget_usd: 50
+
+pricing:
+  IN:
+    currency: INR
+    symbol: "₹"
+    tiers: {starter: 15000, growth: 35000, premium: 75000}
+  US:
+    currency: USD
+    symbol: "$"
+    tiers: {starter: 499, growth: 1299, premium: 2999}

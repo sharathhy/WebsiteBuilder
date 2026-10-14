@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: leadforge
+          POSTGRES_PASSWORD: leadforge
+          POSTGRES_DB: leadforge
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U leadforge" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://leadforge:leadforge@localhost:5432/leadforge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - run: uv sync --frozen
+      - name: Lint (ruff)
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: Typecheck (mypy)
+        run: uv run mypy api/leadforge worker/leadforge_worker
+      - name: Migrations apply, roll back, and match the models
+        working-directory: api
+        run: |
+          uv run alembic upgrade head
+          uv run alembic downgrade base
+          uv run alembic upgrade head
+          uv run alembic check
+      - name: Tests (SQLite)
+        run: uv run pytest -q
+      - name: Tests (Postgres)
+        run: |
+          psql postgresql://leadforge:leadforge@localhost:5432/leadforge -c "CREATE DATABASE leadforge_test"
+          TEST_DATABASE_URL=postgresql+psycopg://leadforge:leadforge@localhost:5432/leadforge_test uv run pytest -q
+      - name: Dependency audit
+        run: uv export --frozen --no-dev --no-emit-workspace > /tmp/req.txt && uv run pip-audit -r /tmp/req.txt --disable-pip
+
+  dashboard:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: dashboard
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
