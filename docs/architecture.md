@@ -17,7 +17,9 @@ flowchart LR
   R --> Workers
   Routes --> PG[(Postgres)]
   Workers --> PG
-  Workers -.->|Phase 2+| EXT[Places API · PSI · Claude · Vercel · Resend]
+  Workers -.->|live keys only| EXT[Places API · PSI · Claude · Vercel · Resend]
+  Workers --> TPL[templates/site · Next.js build]
+  Workers --> ST[(Storage: screenshots, previews, outbox)]
 ```
 
 ## Packages
@@ -25,9 +27,12 @@ flowchart LR
 | Path | What it is |
 | --- | --- |
 | `api/leadforge` | FastAPI app, SQLAlchemy 2 models, Alembic migrations, auth, config loading. Also the shared library the worker imports. |
-| `worker/leadforge_worker` | ARQ workers, one per queue (`discover`, `enrich`, `audit`, `generate`, `deploy`, `email`). |
+| `api/leadforge/pipeline` | Job handlers (`discover`, `enrich`, `audit`, `generate`, `draft_outreach`, `send_email`, `send_due`, maintenance) and the runner. |
+| `api/leadforge/clients` | One client per external service, each with a deterministic mock used when `MOCK_APIS=true` or no key is set. |
+| `api/leadforge/scoring` | Page signals and the rubric ([scoring.md](scoring.md)). |
+| `worker/leadforge_worker` | ARQ workers, one per queue, plus the cron jobs. |
 | `dashboard` | Operator UI. |
-| `templates` | Generated-site templates (Phase 5). |
+| `templates` | The Next.js site template (static export, 8 looks), example specs and `site-spec.schema.json`, the contract between the generator and the template. |
 | `infra` | Dockerfiles and `docker-compose.yml`. |
 | `config` | `targets.yaml` (cities, categories, limits) and `agency.yaml` (sender details, pricing). |
 
@@ -39,9 +44,16 @@ Every unit of work is a row in `jobs` **and** a message on that queue's Redis li
 - **Retries:** a failing handler marks the row `failed` and is retried with exponential backoff (10s, 20s, 40s…) until `max_attempts`.
 - **Dead letter:** after the last attempt (or for an unknown job kind) the row becomes `dead` and stays visible in the dashboard with its error.
 
+## Services and mocks
+
+`services/container.py` builds one `Services` object per process. Each external
+service has a live client and a mock with the same interface; the live one is used only
+when `MOCK_APIS=false` and its key is set. Tests and `make demo` use `InlineDispatcher`,
+which runs jobs in-process instead of through Redis.
+
 ## Data model
 
-13 tables, all created by the first migration:
+14 tables:
 
 | Table | Purpose |
 | --- | --- |
@@ -54,4 +66,5 @@ Every unit of work is a row in `jobs` **and** a message on that queue's Redis li
 | `generated_sites` | Spec, template, Vercel ids, noindex flag, expiry, scores. |
 | `email_drafts`, `email_events` | Outreach drafts (status `drafted → approved → sent → replied → won/lost`), follow-up day, unsubscribe token, delivery events. |
 | `suppression_list` | Global do-not-contact by email, domain or phone. |
+| `form_submissions` | Messages from contact forms on generated sites (stored, not forwarded, while a site is a preview). |
 | `api_usage` | Every billable external call, for quotas and the monthly budget cap. |

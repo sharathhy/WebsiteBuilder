@@ -8,6 +8,8 @@ x-app-env: &app-env
   MOCK_APIS: "true"
   CORS_ORIGINS: http://localhost:5173
   JWT_SECRET: ${JWT_SECRET:-dev-only-change-me-dev-only-change-me}
+  STORAGE_DIR: /app/var/storage
+  PUBLIC_BASE_URL: http://localhost:8000
 
 services:
   postgres:
@@ -43,7 +45,7 @@ services:
     build: { context: .., dockerfile: infra/api.Dockerfile }
     environment: *app-env
     ports: ["8000:8000"]
-    volumes: ["../config:/app/config"]
+    volumes: ["../config:/app/config", "storage:/app/var/storage"]
     depends_on:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
@@ -53,10 +55,9 @@ services:
       retries: 20
 
   worker:
-    build: { context: .., dockerfile: infra/api.Dockerfile }
+    build: { context: .., dockerfile: infra/worker.Dockerfile }
     environment: *app-env
-    volumes: ["../config:/app/config"]
-    command: ["python", "-m", "leadforge_worker.main"]
+    volumes: ["../config:/app/config", "storage:/app/var/storage"]
     depends_on:
       migrate: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
@@ -71,3 +72,4 @@ services:
 
 volumes:
   pgdata:
+  storage:

@@ -7,3 +7,7 @@
 **/.mypy_cache
 **/.ruff_cache
 .env
+**/.next
+templates/site/out
+var
+dashboard/node_modules

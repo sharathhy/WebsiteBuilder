@@ -7,48 +7,63 @@ without a person clicking **Approve & send**.
 
 ## Status
 
+All eight phases are built and run end to end on mocked APIs. No paid API has been
+called and no email has been sent; going live is a checklist in
+[docs/runbook.md](docs/runbook.md#going-live-each-step-costs-money-or-reaches-real-people-do-them-deliberately).
+
 | Phase | Scope | State |
 | --- | --- | --- |
-| 1 | Foundation: monorepo, docker-compose, schema, auth, CI | **Done** |
-| 2 | Discovery (Places API) + enrichment (crawl, emails, phones, dedup) | Next |
-| 3 | Scoring engine | |
-| 4 | Dashboard | |
-| 5 | Animated template library | |
-| 6 | Generator + deploy + quality gate | |
-| 7 | Outreach: drafts, approvals, sending, follow-ups | |
-| 8 | Hardening: observability, cost tracking, docs | |
+| 1 | Foundation: monorepo, docker-compose, schema, auth, CI | Done |
+| 2 | Discovery (Places API New) + enrichment (crawl, emails, phones, dedup) | Done |
+| 3 | Scoring engine (rubric v1.0.0, PageSpeed, Playwright + axe, vision review) | Done |
+| 4 | Dashboard: campaigns, leads, exports, lead detail, approvals, analytics | Done |
+| 5 | Animated Next.js template library (8 looks, 3D heroes) | Done |
+| 6 | Generator + preview deploy + quality gate (≥ 90 and +30) | Done |
+| 7 | Outreach: drafts, approvals, sending, follow-ups, unsubscribe | Done |
+| 8 | Hardening: request IDs, security headers, metrics, cost caps, docs | Done |
 
-### What works after Phase 1
+### How a lead moves through it
 
-- **API** (`api/`): FastAPI with JWT login, refresh, `admin` / `reviewer` roles, user
-  management, rate-limited login, locked-down CORS, JSON logs, optional Sentry,
-  `/health` and `/health/ready` (checks Postgres and Redis). OpenAPI docs at
-  `/api/docs`.
-- **Schema**: all 13 tables from the spec in one Alembic migration, with `place_id` as
-  the durable business key, dedup indexes, source tracking on every contact, a
-  one-target check on audits, and a global suppression list. See
-  [docs/architecture.md](docs/architecture.md).
-- **Queues** (`worker/`): ARQ workers for `discover`, `enrich`, `audit`, `generate`,
-  `deploy` and `email`, with idempotency keys, exponential-backoff retries and a
-  dead-letter state. A "Run test job" button proves the whole path.
-- **Targets config**: [`config/targets.yaml`](config/targets.yaml) holds every city,
-  category, radius and result cap from the brief, validated on load and editable from
-  the dashboard by admins.
-- **Dashboard** (`dashboard/`): mobile-first login, overview (health + live job list)
-  and targets editor.
-- **Dev & CI**: `docker-compose`, `make seed` (no API keys needed), GitHub Actions
-  running ruff, mypy, eslint, prettier, migrations, pytest on SQLite and Postgres,
-  vitest, the dashboard build, and `pip-audit` / `npm audit`. Dependabot is on.
+1. **Discover**: a campaign runs one Places Text Search per city × category (field
+   masks, up to 60 results), upserts by `place_id` and folds duplicate listings together.
+2. **Enrich**: the crawler reads the homepage and up to 10 contact/about pages,
+   honouring robots.txt and crawl-delay with a clear User-Agent. It keeps only publicly
+   published emails, phones, WhatsApp and social links, each with the page it came from,
+   and checks MX records. Nothing is guessed; missing values say "not found".
+3. **Audit**: every site gets a 0 to 100 score with a per-category breakdown, top issues
+   in plain English and screenshots ([docs/scoring.md](docs/scoring.md)).
+4. **Generate**: sites under 60 (and businesses with no site) get a site spec, copy that
+   uses only facts from Places and the business's own pages (placeholders where facts are
+   missing), a palette from their brand colours, and an animated Next.js build deployed
+   as a `noindex` preview.
+5. **Gate**: the preview is audited with the same rubric. It goes live only at ≥ 90 and
+   at least +30 over the original, otherwise it retries with fixes and then goes to
+   manual review.
+6. **Draft**: two short email variants (or a WhatsApp message and call script when no
+   email is published), with the before/after score, postal address and one-click
+   unsubscribe. A human approves each one.
 
-| Mobile overview | Desktop targets |
+### Demo results (mocked APIs)
+
+`make demo` on Bengaluru + Austin dentists creates 60 leads (plus 2 duplicate listings
+folded in). Every lead under 60 gets a live preview scoring at least 90, and the outreach
+drafts wait for approval. The same run is the acceptance test in
+`api/tests/test_pipeline.py`. With the Next.js builder, previews score 96 against
+original sites scoring 27 to 30.
+
+| Lead detail | Approvals (phone) |
 | --- | --- |
-| <img src="docs/screenshots/mobile-overview.png" width="260"> | <img src="docs/screenshots/desktop-targets.png" width="560"> |
+| <img src="docs/screenshots/desktop-lead-detail.png" width="560"> | <img src="docs/screenshots/mobile-approvals.png" width="260"> |
+
+Template screenshots are in [templates/screenshots/](templates/screenshots/) and the
+template library is described in [templates/README.md](templates/README.md).
 
 ## Quick start
 
 ```bash
 make up      # postgres, redis, migrations, api, worker, dashboard
 make seed    # dev users + a demo campaign
+make demo    # optional: run the whole pipeline once on mocked APIs
 ```
 
 Open http://localhost:5173 and sign in as `admin@leadforge.local` /
@@ -61,10 +76,10 @@ Open http://localhost:5173 and sign in as `admin@leadforge.local` /
 api/         FastAPI app, models, migrations (package: leadforge)
 worker/      ARQ queue workers (package: leadforge_worker)
 dashboard/   React + TypeScript + Vite + Tailwind + TanStack Query
-templates/   Generated-site templates (Phase 5)
+templates/   Next.js site template, 8 example specs, site-spec JSON schema
 infra/       Dockerfiles and docker-compose.yml
 config/      targets.yaml, agency.yaml
-docs/        architecture, runbook, decisions
+docs/        architecture, runbook, scoring rubric, decisions
 ```
 
 ## Configuration
@@ -79,8 +94,14 @@ see [docs/decisions.md](docs/decisions.md).
 - Business data comes only from the official Places API (New), never from scraping Maps.
 - Crawls respect robots.txt and crawl-delay, with a clear User-Agent.
 - Only publicly published business contacts are stored, each with its source URL.
-- Every outreach message is a draft until a human approves it, and the suppression list
-  is checked before anything is sent.
+- Places data is refreshed after 30 days, in line with Google's caching terms.
+- Generated copy never invents reviews, awards, prices or staff; gaps are marked
+  placeholders. The business's own photos and logos are never reused; previews use
+  generated artwork or licensed stock with credits.
+- Every outreach message is a draft until a human approves it. At send time the
+  suppression list, the daily limit and the agency details are checked again, and every
+  email carries a postal address and one-click unsubscribe (RFC 8058).
+- Paid API calls stop at the monthly budget in `config/agency.yaml`.
 
 ## Development
 

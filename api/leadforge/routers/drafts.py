@@ -109,6 +109,13 @@ async def approve(
     draft, biz = await _load(db, draft_id)
     if draft.status != DraftStatus.DRAFTED:
         raise HTTPException(409, f"Draft is already {draft.status.value}")
+    main_text = draft.body.split(ox.FOOTER_MARK, 1)[0]  # the footer is rebuilt at send time
+    if "TODO" in main_text or "TODO" in (draft.subject or ""):
+        raise HTTPException(
+            409,
+            "This draft still contains a TODO placeholder (fill in config/agency.yaml "
+            "or edit the message) before approving",
+        )
     if draft.channel == OutreachChannel.EMAIL:
         if not biz.primary_email:
             raise HTTPException(409, "No published email address for this business")

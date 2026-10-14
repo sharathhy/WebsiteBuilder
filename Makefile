@@ -1,7 +1,7 @@
 COMPOSE = docker compose -f infra/docker-compose.yml
 RUN = uv run
 
-.PHONY: help up down logs seed install dev-api dev-worker dev-dashboard migrate migration test lint format typecheck check
+.PHONY: help up down logs seed demo install dev-api dev-worker dev-dashboard migrate migration test lint format typecheck check
 
 help:          ## Show targets
 	@grep -E '^[a-z-]+:.*##' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-15s %s\n", $$1, $$2}'
@@ -20,6 +20,9 @@ seed:          ## Create dev users + demo campaign (mocked APIs, no keys needed)
 	@if $(COMPOSE) ps --status running api >/dev/null 2>&1 && [ -n "$$($(COMPOSE) ps -q api)" ]; then \
 		$(COMPOSE) exec api python -m leadforge.cli seed; \
 	else cd api && $(RUN) python -m leadforge.cli seed; fi
+
+demo:          ## Run the whole pipeline in-process on mocked APIs (needs postgres)
+	cd api && $(RUN) python -m leadforge.cli demo --cities bengaluru,austin --categories dentists --max-results 60
 
 install:       ## Install Python and dashboard dependencies locally
 	uv sync

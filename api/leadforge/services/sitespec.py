@@ -106,6 +106,7 @@ def _area(biz: Business) -> str:
 def mock_copy(biz: Business, category_label: str, template: str, locale: str) -> SiteCopy:
     """Deterministic copy used in MOCK_APIS mode; same content rules as the prompt."""
     area = _area(biz)
+    place = area if area.lower() == biz.city.lower() else f"{area}, {biz.city}"
     services = [
         Service(title=t, description=d, icon=(ICONS.get(template) or ["sparkles"] * 6)[i % 6])
         for i, (t, d) in enumerate(_SERVICE_DEFAULTS.get(template, _GENERIC_SERVICES))
@@ -118,10 +119,10 @@ def mock_copy(biz: Business, category_label: str, template: str, locale: str) ->
     return SiteCopy(
         tagline=f"Trusted {noun} care in {area}"[:90],
         description=(
-            f"{biz.name} is a {noun} in {area}, {biz.city}. Call or message us to ask a question "
+            f"{biz.name} is a {noun} in {place}. Call or message us to ask a question "
             "or book a visit."
         ),
-        hero_headline=f"{category_label.rstrip('s')} in {area}, {biz.city}"[:80],
+        hero_headline=f"{category_label.rstrip('s')} in {place}"[:80],
         hero_subheadline=(
             f"{biz.name}: easy to reach, simple to book, and happy to answer your questions."
         )[:200],
@@ -151,7 +152,7 @@ def mock_copy(biz: Business, category_label: str, template: str, locale: str) ->
         ],
         seo_title=f"{biz.name} | {category_label} in {area}"[:60],
         seo_description=(
-            f"{biz.name}: {noun} in {area}, {biz.city}. See services, hours and location, "
+            f"{biz.name}: {noun} in {place}. See services, hours and location, "
             "then call or message to book."
         )[:155],
         placeholders=[
@@ -221,6 +222,7 @@ def build_spec(
     locale = "en-IN" if biz.country == "IN" else "en-US"
     phone_display = national_format(biz.phone_e164) if biz.phone_e164 else None
     area = _area(biz)
+    place = area if area.lower() == biz.city.lower() else f"{area}, {biz.city}"
     hours = parse_hours(biz.hours)
     sections = ["services", "about", "social_proof"]
     if gallery:
@@ -270,7 +272,7 @@ def build_spec(
         seo=Seo(
             title=copy.seo_title,
             description=copy.seo_description,
-            primary_keyword=f"{biz.category.replace('-', ' ')} in {area}, {biz.city}",
+            primary_keyword=f"{biz.category.replace('-', ' ')} in {place}",
             keywords=[biz.category.replace("-", " "), area, biz.city],
         ),
         theme=Theme(

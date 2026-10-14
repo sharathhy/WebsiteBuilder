@@ -16,8 +16,8 @@ COPY worker worker
 COPY config config
 RUN uv sync --frozen --no-dev
 
-RUN useradd --create-home app && chown -R app /app/config
+RUN useradd --create-home app && mkdir -p /app/var/storage && chown -R app /app/config /app/var
 USER app
-ENV PATH="/app/.venv/bin:$PATH" CONFIG_DIR=/app/config
+ENV PATH="/app/.venv/bin:$PATH" CONFIG_DIR=/app/config STORAGE_DIR=/app/var/storage
 EXPOSE 8000
 CMD ["uvicorn", "leadforge.main:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "api"]

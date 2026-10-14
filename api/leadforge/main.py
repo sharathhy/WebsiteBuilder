@@ -15,6 +15,7 @@ from slowapi.middleware import SlowAPIMiddleware
 
 from leadforge.core.config import get_settings
 from leadforge.core.logging import configure_logging
+from leadforge.core.middleware import RequestContextMiddleware
 from leadforge.core.ratelimit import limiter
 from leadforge.routers import (
     analytics,
@@ -24,6 +25,7 @@ from leadforge.routers import (
     health,
     jobs,
     leads,
+    metrics,
     public,
     suppression,
     targets,
@@ -65,12 +67,14 @@ def create_app() -> FastAPI:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
     app.add_middleware(SlowAPIMiddleware)
+    app.add_middleware(RequestContextMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-        allow_headers=["Authorization", "Content-Type"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
+        expose_headers=["X-Request-ID"],
     )
     app.include_router(health.router)
     for router in (
@@ -84,6 +88,7 @@ def create_app() -> FastAPI:
         analytics.router,
         suppression.router,
         webhooks.router,
+        metrics.router,
     ):
         app.include_router(router, prefix="/api")
     app.include_router(public.router)

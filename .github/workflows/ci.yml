@@ -74,3 +74,30 @@ jobs:
       - run: npm run build
       - name: Dependency audit
         run: npm audit --omit=dev --audit-level=high
+
+  templates:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: templates/site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: templates/site/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build every example under a preview sub-path and enforce the JS budget
+        run: |
+          for spec in ../examples/*.json; do
+            SITE_SPEC="$PWD/$spec" BASE_PATH=/previews/ci npm run build
+            npm run check:budget
+          done
+      - name: Lighthouse (mobile, perf and a11y >= 0.9)
+        run: |
+          SITE_SPEC="$PWD/../examples/restaurant.json" npm run build
+          cd .. && npx --yes @lhci/cli@0.15.1 autorun --config=lighthouserc.json
