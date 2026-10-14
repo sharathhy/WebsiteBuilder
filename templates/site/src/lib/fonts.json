@@ -1,0 +1,13 @@
+{
+  "inter": { "pkg": "inter", "family": "Inter Variable" },
+  "manrope": { "pkg": "manrope", "family": "Manrope Variable" },
+  "fraunces": { "pkg": "fraunces", "family": "Fraunces Variable" },
+  "playfairdisplay": { "pkg": "playfair-display", "family": "Playfair Display Variable" },
+  "playfair": { "pkg": "playfair-display", "family": "Playfair Display Variable" },
+  "spacegrotesk": { "pkg": "space-grotesk", "family": "Space Grotesk Variable" },
+  "outfit": { "pkg": "outfit", "family": "Outfit Variable" },
+  "oswald": { "pkg": "oswald", "family": "Oswald Variable" },
+  "sourceserif4": { "pkg": "source-serif-4", "family": "Source Serif 4 Variable" },
+  "sourceserif": { "pkg": "source-serif-4", "family": "Source Serif 4 Variable" },
+  "dmsans": { "pkg": "dm-sans", "family": "DM Sans Variable" }
+}

@@ -76,3 +76,12 @@ def test_dedup_matches_branch_listing_by_phone() -> None:
 def test_domain_of_strips_www() -> None:
     assert domain_of("https://www.Sample.example/path") == "sample.example"
     assert domain_of(None) is None
+
+
+def test_shared_phone_with_a_different_name_is_not_a_duplicate() -> None:
+    a = _biz("Sample Smile Dental 01 Austin", "+15125550101")
+    b = _biz("Sample Bistro 01 Austin", "+15125550101")
+    assert not is_same_business(a, b)
+    c = _biz("Dr. Smith Dental Clinic", "+15125550199")
+    d = _biz("Smith Dental", "+15125550199")
+    assert is_same_business(c, d)

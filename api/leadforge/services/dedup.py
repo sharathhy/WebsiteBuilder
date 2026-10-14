@@ -46,11 +46,15 @@ def _distance_m(a: Business, b: Business) -> float | None:
 
 def is_same_business(a: Business, b: Business) -> bool:
     """Same phone or same domain plus a similar name, or a near-identical name next door."""
-    score = fuzz.token_set_ratio(a.normalized_name, b.normalized_name)
+    a_name, b_name = a.normalized_name, b.normalized_name
+    score = fuzz.token_set_ratio(a_name, b_name)
+    # A shared phone/domain alone isn't enough (malls and group practices share numbers):
+    # the names must also overlap strongly, not just in generic words like the city.
+    similar = score >= 85 and fuzz.token_sort_ratio(a_name, b_name) >= 60
     same_phone = bool(a.phone_e164 and a.phone_e164 == b.phone_e164)
     same_domain = bool(a.domain and a.domain == b.domain)
     dist = _distance_m(a, b)
-    if (same_phone or same_domain) and score >= 70:
+    if (same_phone or same_domain) and similar:
         return True
     return score >= 97 and dist is not None and dist <= NEAR_METRES
 

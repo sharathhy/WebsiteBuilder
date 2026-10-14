@@ -140,6 +140,7 @@ export async function api<T>(path: string, init: RequestInit = {}, retry = true)
     if (res.status === 401) tokens.clear();
     throw new ApiError(res.status, detail);
   }
+  if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }
 
@@ -150,4 +151,31 @@ export async function login(email: string, password: string): Promise<void> {
     false,
   );
   tokens.set(body.access_token, body.refresh_token);
+}
+
+/** Authenticated file download (exports). */
+export async function download(path: string, filename: string): Promise<void> {
+  const headers = new Headers();
+  if (tokens.access) headers.set("Authorization", `Bearer ${tokens.access}`);
+  let res = await fetch(path, { headers });
+  if (res.status === 401 && (await tryRefresh())) {
+    headers.set("Authorization", `Bearer ${tokens.access}`);
+    res = await fetch(path, { headers });
+  }
+  if (!res.ok) throw new ApiError(res.status, res.statusText);
+  const url = URL.createObjectURL(await res.blob());
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function qs(params: Record<string, string | number | boolean | null | undefined>): string {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v !== undefined && v !== null && v !== "") sp.set(k, String(v));
+  }
+  const s = sp.toString();
+  return s ? `?${s}` : "";
 }

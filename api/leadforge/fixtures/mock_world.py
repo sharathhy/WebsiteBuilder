@@ -60,8 +60,30 @@ def site_slug(seq: int, category_id: str, city_id: str, country: str) -> str:
     return f"sample-{seq:02d}--{category_id}--{city_id}--{country.lower()}"
 
 
-def mock_phone(country: str, seq: int) -> str:
-    return f"+91 80 0000 {seq:04d}" if country == "IN" else f"+1 512 555 01{seq % 100:02d}"
+# 555-0100..0199 is reserved for fiction in every US area code; one area code per category
+# keeps numbers unique across categories in the same city.
+_US_AREA_CODES = (
+    "512", "737", "210", "214", "713", "312", "646", "213",
+    "602", "619", "408", "415", "305", "206", "617", "404",
+)  # fmt: skip
+_CATEGORY_ORDER = (
+    "dentists", "restaurants", "salons-spas", "cafes", "clinics", "gyms", "real-estate",
+    "lawyers", "accountants", "interior-designers", "wedding-planners", "auto-repair",
+    "coaching-centres", "boutique-hotels",
+)  # fmt: skip
+
+
+def _category_index(category_id: str) -> int:
+    if category_id in _CATEGORY_ORDER:
+        return _CATEGORY_ORDER.index(category_id)
+    return len(_CATEGORY_ORDER) + int(hashlib.sha256(category_id.encode()).hexdigest()[:4], 16) % 2
+
+
+def mock_phone(country: str, seq: int, category_id: str) -> str:
+    idx = _category_index(category_id)
+    if country == "IN":
+        return f"+91 80 00{idx % 100:02d} {seq:04d}"
+    return f"+1 {_US_AREA_CODES[idx % len(_US_AREA_CODES)]} 555 01{seq % 100:02d}"
 
 
 def _rng(*parts: object) -> random.Random:
@@ -98,7 +120,7 @@ def businesses_for(
         slug = site_slug(i, category_id, city_id, country)
         scheme = "https" if rng.random() < 0.6 else "http"
         website = None if quality == "none" else f"{scheme}://{slug}.example/"
-        phone = mock_phone(country, i)
+        phone = mock_phone(country, i, category_id)
         out.append(
             MockBusiness(
                 place_id=f"mock_{city_id}_{category_id}_{i:02d}",
@@ -184,7 +206,7 @@ def _business_from_domain(domain: str) -> tuple[str, Quality, str, random.Random
         return slug, "decent", "+1 512 555 0100", rng
     quality = _pick_quality(_rng(city, category, seq))
     name = f"Sample {category.replace('-', ' ').title()} {seq:02d}"
-    return name, quality, mock_phone(cc.upper(), seq), rng
+    return name, quality, mock_phone(cc.upper(), seq, category), rng
 
 
 def mock_site_response(url: str) -> tuple[int, dict[str, str], str]:

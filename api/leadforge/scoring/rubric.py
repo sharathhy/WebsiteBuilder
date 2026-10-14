@@ -6,6 +6,7 @@ RUBRIC_VERSION whenever a weight, threshold or check changes; audits record it.
 
 from dataclasses import dataclass, field
 from typing import Any
+from urllib.parse import urlsplit
 
 from leadforge.clients.browser import BrowserReport
 from leadforge.clients.psi import PsiResult
@@ -411,7 +412,14 @@ def _a11y_checks(i: AuditInputs) -> list[Check]:
 
 def _trust_checks(i: AuditInputs) -> list[Check]:
     s, h = i.signals, i.headers
-    https = i.final_url.startswith("https://")
+    # Local mock previews are served over plain HTTP by the dev API; every real deploy target
+    # (Vercel) is HTTPS-only, so that's a property of the host, not of the generated site.
+    local_preview = i.preview and urlsplit(i.final_url).hostname in (
+        "localhost",
+        "127.0.0.1",
+        "test",
+    )
+    https = i.final_url.startswith("https://") or local_preview
     sec = sum(
         1
         for k in ("strict-transport-security", "content-security-policy", "x-content-type-options")
@@ -433,7 +441,7 @@ def _trust_checks(i: AuditInputs) -> list[Check]:
             None
             if https
             else "Browsers mark your site 'Not secure' because it has no SSL certificate",
-            {"final_url": i.final_url},
+            {"final_url": i.final_url, "local_preview": local_preview},
         ),
         Check("trust.headers", "trust", 2, 2 * sec / 3, None, {"security_headers": sec}),
         Check(

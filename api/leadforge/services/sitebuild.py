@@ -1,6 +1,7 @@
 """Build a SiteSpec into a static site: Next.js templates (primary) or static fallback."""
 
 import asyncio
+import fcntl
 import json
 import os
 import shutil
@@ -39,6 +40,9 @@ def choose_builder(settings: Settings) -> str:
     return settings.site_builder
 
 
+_BUILD_LOCK = asyncio.Lock()
+
+
 async def _run(cmd: list[str], cwd: Path, env: dict[str, str], timeout: int) -> tuple[int, str]:
     proc = await asyncio.create_subprocess_exec(
         *cmd, cwd=cwd, env=env, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
@@ -62,28 +66,38 @@ async def build_site(
         out = write_site(spec, work / "out", assets)
         return BuildResult(out, "static", 0.0, "")
 
+    # Next/Turbopack won't resolve a symlinked node_modules outside the project root, so builds
+    # run in the template checkout itself, one at a time (a file lock covers every worker).
     template = settings.templates_dir / "site"
-    shutil.copytree(
-        template, work,
-        ignore=shutil.ignore_patterns("node_modules", ".next", "out", "screenshots"),
-    )  # fmt: skip
-    (work / "node_modules").symlink_to(template / "node_modules", target_is_directory=True)
-    gen = work / "public" / "generated"
-    gen.mkdir(parents=True, exist_ok=True)
-    for name, data in assets.items():
-        (gen / name).write_bytes(data)
-    spec_path = work / "site.json"
-    spec_path.write_text(json.dumps(spec.model_dump(mode="json"), indent=2))
-    env = {
-        **os.environ,
-        "SITE_SPEC": str(spec_path),
-        "BASE_PATH": base_path,
-        "NEXT_TELEMETRY_DISABLED": "1",
-    }
-    code, log = await _run(["npm", "run", "build"], work, env, timeout=900)
-    if code != 0 or not (work / "out" / "index.html").exists():
-        raise BuildError(f"next build failed ({code}): {log[-1500:]}")
-    budget_code, budget_log = await _run(["npm", "run", "check:budget"], work, env, timeout=120)
+    work.mkdir(parents=True, exist_ok=True)
+    lock_path = template / ".build.lock"
+    async with _BUILD_LOCK:
+        with lock_path.open("w") as lock:
+            await asyncio.to_thread(fcntl.flock, lock, fcntl.LOCK_EX)
+            try:
+                gen = template / "public" / "generated"
+                shutil.rmtree(gen, ignore_errors=True)
+                gen.mkdir(parents=True)
+                for name, data in assets.items():
+                    (gen / name).write_bytes(data)
+                spec_path = work / "site.json"
+                spec_path.write_text(json.dumps(spec.model_dump(mode="json"), indent=2))
+                env = {
+                    **os.environ,
+                    "SITE_SPEC": str(spec_path),
+                    "BASE_PATH": base_path,
+                    "NEXT_TELEMETRY_DISABLED": "1",
+                }
+                code, log = await _run(["npm", "run", "build"], template, env, timeout=900)
+                if code != 0 or not (template / "out" / "index.html").exists():
+                    raise BuildError(f"next build failed ({code}): {log[-1500:]}")
+                budget_code, budget_log = await _run(
+                    ["npm", "run", "check:budget"], template, env, timeout=120
+                )
+                shutil.copytree(template / "out", work / "out")
+            finally:
+                shutil.rmtree(template / "public" / "generated", ignore_errors=True)
+                fcntl.flock(lock, fcntl.LOCK_UN)
     js_kb = None
     for line in budget_log.splitlines():
         if "KB" in line and any(ch.isdigit() for ch in line):

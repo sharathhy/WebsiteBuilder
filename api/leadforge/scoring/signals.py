@@ -95,7 +95,9 @@ def analyze(html: str, url: str, business_name: str = "", phone_digits: str = ""
         early_links = body.find_all(["a", "button"], limit=12)
         early_text = " ".join(el.get_text(" ", strip=True) for el in early_links)
     years = [
-        int(y) for y in re.findall(r"(?:©|&copy;|copyright)\s*(?:\d{4}\s*[-–]\s*)?(\d{4})", low)
+        int(y)
+        for src in (re.sub(r"<!--.*?-->", "", low, flags=re.S), text_low)
+        for y in re.findall(r"(?:©|&copy;|copyright)\s*(?:\d{4}\s*[-–]\s*)?(\d{4})", src)
     ]
 
     host = urlsplit(url).netloc.lower()

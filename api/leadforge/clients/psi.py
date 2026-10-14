@@ -86,18 +86,31 @@ class MockPsiClient:
         html = html or ""
         low = html.lower()
         imgs = len(re.findall(r"<img\b", low))
-        scripts = len(re.findall(r"<script\b[^>]*\bsrc=", low))
+        tags = re.findall(r"<script\b[^>]*\bsrc=[^>]*>", low)
+        # Parser-blocking scripts cost far more main-thread time than async/defer/module
+        # ones; nomodule polyfills are never fetched by modern browsers.
+        tags = [t for t in tags if "nomodule" not in t]
+        deferred = sum(1 for t in tags if re.search(r"\b(async|defer)\b|type=\"module\"", t))
+        scripts = len(tags) - deferred
         legacy = sum(k in low for k in ("jquery-1.", "<table", "<font", "bgcolor"))
         has_viewport = 'name="viewport"' in low
         modern = "<!doctype html>" in low
         sized_imgs = len(re.findall(r"<img\b[^>]*\bwidth=", low))
         extra = self.asset_bytes(url) if self.asset_bytes else None
-        total = extra if extra is not None else len(html) + imgs * 380_000 + scripts * 95_000
+        total = (
+            extra
+            if extra is not None
+            else len(html) + imgs * 380_000 + (scripts + deferred) * 95_000
+        )
         mobile = strategy == "mobile"
         lcp = 900 + total / (1_400 if mobile else 6_000) + legacy * (900 if mobile else 300)
         if not has_viewport and mobile:
             lcp += 1_500
-        tbt = scripts * (180 if mobile else 60) + legacy * (120 if mobile else 30)
+        tbt = (
+            scripts * (180 if mobile else 60)
+            + deferred * (15 if mobile else 5)
+            + legacy * (120 if mobile else 30)
+        )
         cls = 0.02 + max(0, imgs - sized_imgs) * 0.09 + (0.05 if not modern else 0)
         perf = max(
             0.05,

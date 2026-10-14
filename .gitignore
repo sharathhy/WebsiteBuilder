@@ -13,3 +13,9 @@ coverage/
 config/.targets-*.yaml
 *.tsbuildinfo
 var/
+# templates/site (Phase 5)
+templates/site/out/
+templates/site/.next/
+templates/site/node_modules/
+templates/.lighthouseci/
+dump.rdb
