@@ -77,6 +77,20 @@ export function Footer({ ctx }: { ctx: SiteCtx }) {
           </ul>
         </div>
       </div>
+      {spec.pages.length ? (
+        <nav aria-label="All pages" className="container-x border-t border-line py-8">
+          <h3 className="text-sm font-semibold uppercase tracking-[0.14em] text-muted">Pages</h3>
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1">
+            {spec.pages.map((p) => (
+              <li key={p.path}>
+                <Link href={`${p.path}/`} prefetch={false} className="inline-flex min-h-11 items-center underline-offset-4 hover:underline">
+                  {p.nav_label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : null}
       <div className="border-t border-line">
         <div className="container-x flex flex-col gap-2 py-6 text-sm text-muted md:flex-row md:items-center md:justify-between">
           <p>

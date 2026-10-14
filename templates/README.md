@@ -59,6 +59,14 @@ default is used). Service `icon` is any [lucide](https://lucide.dev/icons) name 
   turnstile_token}` to `contact.form_endpoint` exactly as given. `company_website` is a hidden
   honeypot. Cloudflare Turnstile loads lazily only when `turnstile_site_key` is set.
   `booking_url` adds a “Book an appointment” button and a “Book” action on mobile.
+- **pages** (spec 1.1, page parity): one inner page per page of the business's current site,
+  rendered by `src/app/[...slug]/page.tsx` at `path` with a breadcrumb, `heading`, `intro`, child
+  pages (`parent`), each of `placeholders` as a dashed “Placeholder — to be supplied by …” card,
+  then the listed `sections`. When pages exist the header menu lists `in_nav` pages (instead of
+  home-page anchors) and the footer lists all pages; the sitemap includes them. A spec with no
+  pages builds a one-page site (`scripts/postbuild.mjs` removes the stub route static export
+  needs). `redirects` are written by the LeadForge builder after the build as small redirect
+  pages at the old addresses (e.g. `/menu.html` → `/menu/`).
 - **Mobile action bar**: sticky Call / WhatsApp / Book — only for actions present in the spec.
 - **Footer**: NAP (name, address, phone exactly as in `business`), socials, privacy link,
   `attribution` lines.

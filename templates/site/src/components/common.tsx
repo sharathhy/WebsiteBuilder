@@ -18,19 +18,22 @@ export function SectionHeading({
   title,
   lede,
   align = "left",
+  level = 2,
 }: {
   id: string;
   eyebrow?: string;
   title: string;
   lede?: ReactNode;
   align?: "left" | "center";
+  level?: 1 | 2;
 }) {
+  const H = level === 1 ? "h1" : "h2";
   return (
     <Reveal className={align === "center" ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
       {eyebrow ? <p className={`eyebrow ${align === "center" ? "justify-center" : ""}`}>{eyebrow}</p> : null}
-      <h2 id={id} className="h-section">
+      <H id={id} className="h-section">
         {title}
-      </h2>
+      </H>
       {lede ? <div className={`lede mt-4 ${align === "center" ? "mx-auto" : ""}`}>{lede}</div> : null}
     </Reveal>
   );

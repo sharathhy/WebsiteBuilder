@@ -10,6 +10,7 @@
   "scripts": {
     "prepare-spec": "node scripts/prepare-spec.mjs",
     "build": "node scripts/prepare-spec.mjs && next build",
+    "postbuild": "node scripts/postbuild.mjs",
     "check:budget": "node scripts/check-budget.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",

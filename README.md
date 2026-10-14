@@ -29,16 +29,22 @@ called and no email has been sent; going live is a checklist in
 2. **Enrich**: the crawler reads the homepage and up to 10 contact/about pages,
    honouring robots.txt and crawl-delay with a clear User-Agent. It keeps only publicly
    published emails, phones, WhatsApp and social links, each with the page it came from,
-   and checks MX records. Nothing is guessed; missing values say "not found".
+   and checks MX records. Nothing is guessed; missing values say "not found". It also
+   lists every public page of the current site (links plus sitemap.xml, robots.txt
+   respected, up to 30 pages), keeping only each page's path, nav label and kind.
 3. **Audit**: every site gets a 0 to 100 score with a per-category breakdown, top issues
    in plain English and screenshots ([docs/scoring.md](docs/scoring.md)).
 4. **Generate**: sites under 60 (and businesses with no site) get a site spec, copy that
    uses only facts from Places and the business's own pages (placeholders where facts are
    missing), a palette from their brand colours, and an animated Next.js build deployed
-   as a `noindex` preview.
-5. **Gate**: the preview is audited with the same rubric. It goes live only at ≥ 90 and
-   at least +30 over the original, otherwise it retries with fixes and then goes to
-   manual review.
+   as a `noindex` preview. **Every page of the current site gets a page on the new one**
+   at the same address (old `.html`/`.php` addresses redirect to the clean URL). Page
+   copy is rewritten from known facts, never copied; menus, bios, prices and blog posts
+   are clearly marked placeholders for the owner to supply.
+5. **Gate**: the preview is audited with the same rubric. It goes live only at ≥ 90,
+   at least +30 over the original, and with every original page answering on the
+   preview; otherwise it retries with fixes and then goes to manual review with the
+   missing pages listed.
 6. **Draft**: two short email variants (or a WhatsApp message and call script when no
    email is published), with the before/after score, postal address and one-click
    unsubscribe. A human approves each one.
@@ -47,7 +53,8 @@ called and no email has been sent; going live is a checklist in
 
 `make demo` on Bengaluru + Austin dentists creates 60 leads (plus 2 duplicate listings
 folded in). Every lead under 60 gets a live preview scoring at least 90, and the outreach
-drafts wait for approval. The same run is the acceptance test in
+drafts wait for approval, and every page of each original site (up to 10 on the
+multi-page fixtures) answers on its preview. The same run is the acceptance test in
 `api/tests/test_pipeline.py`. With the Next.js builder, previews score 96 against
 original sites scoring 27 to 30.
 

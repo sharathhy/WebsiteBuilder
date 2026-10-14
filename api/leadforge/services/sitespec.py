@@ -27,6 +27,7 @@ from leadforge.schemas.site_spec import (
     SocialProof,
     Theme,
 )
+from leadforge.services import pages as page_plan
 from leadforge.services.contacts import national_format
 
 TEMPLATE_MODEL = {
@@ -218,6 +219,8 @@ def build_spec(
     booking_url: str | None,
     turnstile_site_key: str | None,
     enable_3d: bool = True,
+    inventory: list[dict[str, Any]] | None = None,
+    category_label: str | None = None,
 ) -> SiteSpec:
     locale = "en-IN" if biz.country == "IN" else "en-US"
     phone_display = national_format(biz.phone_e164) if biz.phone_e164 else None
@@ -235,6 +238,21 @@ def build_spec(
     placeholders = list(copy.placeholders)
     if not gallery:
         placeholders.append("Photos of your space (we don't use your photos without permission)")
+    label = category_label or biz.category.replace("-", " ").title()
+    noun = label.lower().rstrip("s") if label.endswith("s") else label.lower()
+    inner, redirects = page_plan.plan_pages(
+        inventory or [],
+        name=biz.name,
+        noun=noun,
+        place=place,
+        available=sections,  # type: ignore[arg-type]
+        has_booking=bool(booking_url),
+    )
+    if any(p.placeholders for p in inner):
+        n = sum(1 for p in inner if p.placeholders)
+        placeholders.append(
+            f"Content for {n} inner {'page' if n == 1 else 'pages'} (marked on each page)"
+        )
     cta = (
         Link(label="Call now", href=f"tel:{biz.phone_e164}")
         if biz.phone_e164
@@ -312,6 +330,8 @@ def build_spec(
             booking_url=booking_url,
         ),
         analytics=Analytics(enabled=False),
+        pages=inner,
+        redirects=redirects,
         placeholders=placeholders,
         attribution=[img.credit for img in [hero_image, *gallery] if img.credit],
     )

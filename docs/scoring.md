@@ -39,6 +39,24 @@ the live PageSpeed Insights API and Claude vision review without code changes.
 ## Quality gate for generated sites
 
 A generated site goes live only when its own audit scores **≥ 90 and at least 30
-points above the original**. On a miss the generator retries with fixes (3D off, then
+points above the original**, and **every page of the original site answers on the
+preview** (page parity). On a miss the generator retries with fixes (3D off, then
 gallery off) up to 3 attempts, then marks the site **manual review** with every attempt's
 score and reason.
+
+### Page parity
+
+During enrichment the crawler lists the current site's pages: links on the home page, one
+level of links below each page, and the sitemap(s) named in robots.txt. Each candidate is
+fetched through the same polite fetcher (robots.txt, crawl-delay, per-domain rate limit)
+and kept only if it answers 200 with HTML; asset files, admin, login, cart and feed URLs
+are ignored and the list is capped at `PAGE_INVENTORY_MAX` (30, home included). Only the
+path, nav label, `<title>` and a page kind (about, services, menu, team, gallery, blog,
+contact...) are stored on `websites.page_inventory`; page text is never stored.
+
+The generator turns each entry into a `pages[]` item in the site spec (spec 1.1) at the
+same path. Changed addresses (`/menu.html` to `/menu/`, `/privacy-policy` to the
+template's `/privacy/`) get a redirect page in `redirects[]`. After deploying, the gate
+requests every original path on the preview; the result (`expected`, `present`,
+`missing`, per page `ok`/`redirect`/`missing`) is saved on `generated_sites.page_parity`
+and shown on the lead screen. Any missing page fails the gate.

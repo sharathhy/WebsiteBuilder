@@ -10,7 +10,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, HttpUrl
 
-SPEC_VERSION = "1.0"
+SPEC_VERSION = "1.1"
 
 TemplateId = Literal[
     "restaurant",
@@ -171,6 +171,41 @@ class Analytics(BaseModel):
     id: str | None = None
 
 
+PageKind = Literal[
+    "about", "services", "services-detail", "menu", "pricing", "team", "gallery",
+    "testimonials", "faq", "blog", "blog-detail", "booking", "contact", "location", "events",
+    "careers", "terms", "other",
+]  # fmt: skip
+
+
+class Page(BaseModel):
+    """An inner page that mirrors a page of the business's current site (page parity).
+
+    Copy is written from the business facts LeadForge holds, never copied from the old
+    page; whatever only the owner can supply is listed in `placeholders` and rendered on
+    the page as a clearly marked placeholder."""
+
+    path: str = Field(pattern=r"^/[a-z0-9-]+(?:/[a-z0-9-]+)*$")  # no trailing slash
+    kind: PageKind
+    nav_label: str = Field(max_length=40)
+    in_nav: bool = True
+    parent: str | None = None  # path of the parent page, for nested pages
+    title: str = Field(max_length=70)
+    description: str = Field(max_length=170)
+    heading: str
+    intro: str
+    sections: list[SectionType] = Field(default_factory=list)
+    placeholders: list[str] = Field(default_factory=list)
+    source_path: str | None = None  # the page's path on the current site
+
+
+class Redirect(BaseModel):
+    """An old address that must keep working, e.g. /menu.html -> /menu."""
+
+    from_path: str = Field(pattern=r"^/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*$")
+    to_path: str
+
+
 class SiteSpec(BaseModel):
     spec_version: str = SPEC_VERSION
     template: TemplateId
@@ -191,6 +226,9 @@ class SiteSpec(BaseModel):
     pricing: list[PricingTier] = Field(default_factory=list)
     contact: Contact
     analytics: Analytics = Analytics()
+    # Inner pages, one per page of the current site (the home page is the spec itself).
+    pages: list[Page] = Field(default_factory=list)
+    redirects: list[Redirect] = Field(default_factory=list)
     # Human-readable list of things the owner must supply, e.g. "Team photos".
     placeholders: list[str] = Field(default_factory=list)
     attribution: list[str] = Field(default_factory=list)

@@ -9,7 +9,7 @@ import html
 import json
 from pathlib import Path
 
-from leadforge.schemas.site_spec import SiteSpec
+from leadforge.schemas.site_spec import Page, SiteSpec
 from leadforge.services.brand import contrast
 
 DAY_ABBR = {"Monday": "Mo", "Tuesday": "Tu", "Wednesday": "We", "Thursday": "Th",
@@ -101,6 +101,11 @@ footer{{background:var(--s);color:#e2e8f0;padding:2.5rem 0 6rem}}footer a{{color
 .callbar{{position:fixed;inset:auto 0 0 0;display:grid;grid-auto-flow:column;gap:.5rem;padding:.5rem;background:#fff;border-top:1px solid #e5e7eb;z-index:6}}
 .callbar .btn{{width:100%}}
 @media (min-width:768px){{.callbar{{display:none}}footer{{padding-bottom:2.5rem}}}}
+.pages{{display:none;gap:1rem;flex-wrap:wrap}}.pages a{{text-decoration:none;font-weight:600;color:var(--s);min-height:44px;display:inline-flex;align-items:center}}
+@media (min-width:1024px){{.pages{{display:flex}}}}
+.pagehead{{background:#f8fafc}}.crumbs{{font-size:.9rem}}
+.tbc{{border:2px dashed #d97706;background:#fffbeb}}.tbc strong{{color:#92400e;text-transform:uppercase;font-size:.8rem;letter-spacing:.08em}}
+.pagelist{{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:.25rem 1rem}}.pagelist a{{min-height:44px;display:inline-flex;align-items:center}}
 @media (prefers-reduced-motion:no-preference){{.btn{{transition:transform .15s}}.btn:hover{{transform:translateY(-1px)}}}}
 """
 
@@ -108,6 +113,7 @@ footer{{background:var(--s);color:#e2e8f0;padding:2.5rem 0 6rem}}footer a{{color
 def _head(spec: SiteSpec, title: str, description: str, path: str = "") -> str:
     robots = "noindex,nofollow" if spec.noindex else "index,follow"
     url = spec.site_url.rstrip("/") + "/" + path
+    rel = _rel(path)
     og = spec.site_url.rstrip("/") + "/generated/og.svg"
     return (
         f'<!doctype html><html lang="{spec.locale}"><head><meta charset="utf-8">'
@@ -117,41 +123,15 @@ def _head(spec: SiteSpec, title: str, description: str, path: str = "") -> str:
         f'<meta property="og:title" content="{e(title)}"><meta property="og:description" content="{e(description)}">'
         f'<meta property="og:type" content="website"><meta property="og:url" content="{e(url)}">'
         f'<meta property="og:image" content="{e(og)}"><meta name="theme-color" content="{spec.theme.primary}">'
-        '<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest">'
+        f'<link rel="icon" href="{rel}favicon.svg" type="image/svg+xml"><link rel="manifest" href="{rel}manifest.webmanifest">'
         f"<style>{_css(spec)}</style></head>"
     )
 
 
-def render_index(spec: SiteSpec) -> str:
+def _sections(spec: SiteSpec, sections: list[str], rel: str = "") -> str:
     b = spec.business
-    phone = b.phone_display or b.phone_e164
-    parts: list[str] = [_head(spec, spec.seo.title, spec.seo.description)]
-    parts.append('<body><a class="skip" href="#main">Skip to content</a>')
-    if spec.placeholders:
-        parts.append(
-            '<div class="note" role="note"><div class="wrap"><strong>Preview.</strong> Items to '
-            "confirm with the owner: " + e(", ".join(spec.placeholders)) + "</div></div>"
-        )
-    cta = spec.hero.cta_primary
-    parts.append(
-        f'<header class="top"><div class="wrap"><a class="brand" href="./">{e(b.name)}</a>'
-        f'<a class="btn" href="{e(cta.href)}">{e(cta.label)}</a></div></header><main id="main">'
-    )
-    img = spec.hero.fallback_image
-    second = spec.hero.cta_secondary
-    parts.append(
-        f'<div class="hero"><img src="{e(img.src)}" alt="{e(img.alt)}" width="1600" height="900" '
-        f'fetchpriority="high"><div class="wrap"><div class="card"><p>{e(b.tagline)}</p>'
-        f"<h1>{e(spec.hero.headline)}</h1><p>{e(spec.hero.subheadline)}</p>"
-        f'<p style="display:flex;flex-wrap:wrap;gap:.75rem"><a class="btn" href="{e(cta.href)}">{e(cta.label)}</a>'
-        + (
-            f'<a class="btn ghost" style="color:#fff;box-shadow:inset 0 0 0 2px #fff" href="{e(second.href)}">{e(second.label)}</a>'
-            if second
-            else ""
-        )
-        + "</p></div></div></div>"
-    )
-    for section in spec.sections:
+    parts: list[str] = []
+    for section in sections:
         if section == "services" and spec.services:
             tiles = "".join(
                 f'<div class="tile"><h3>{e(s.title)}</h3><p>{e(s.description)}</p>'
@@ -231,6 +211,43 @@ def render_index(spec: SiteSpec) -> str:
                 '<label class="hp" aria-hidden="true">Website<input name="company_website" tabindex="-1" autocomplete="off"></label>'
                 '<button class="btn" type="submit">Send message</button></form></div></section>'
             )
+    return "".join(parts)
+
+
+def _rel(path: str) -> str:
+    """Relative prefix from a page at `path` (e.g. "/services/x") back to the site root."""
+    depth = len([seg for seg in path.strip("/").split("/") if seg])
+    return "../" * depth or "./"
+
+
+def _href(rel: str, path: str) -> str:
+    return rel + (path.strip("/") + "/" if path != "/" else "")
+
+
+def _top(spec: SiteSpec, rel: str) -> str:
+    b = spec.business
+    cta = spec.hero.cta_primary
+    nav = "".join(
+        f'<a href="{e(_href(rel, p.path))}">{e(p.nav_label)}</a>' for p in spec.pages if p.in_nav
+    )
+    banner = ""
+    if spec.placeholders:
+        banner = (
+            '<div class="note" role="note"><div class="wrap"><strong>Preview.</strong> Items to '
+            "confirm with the owner: " + e(", ".join(spec.placeholders)) + "</div></div>"
+        )
+    return (
+        f'<body><a class="skip" href="#main">Skip to content</a>{banner}'
+        f'<header class="top"><div class="wrap"><a class="brand" href="{rel}">{e(b.name)}</a>'
+        + (f'<nav class="pages" aria-label="Pages">{nav}</nav>' if nav else "")
+        + f'<a class="btn" href="{e(cta.href)}">{e(cta.label)}</a></div></header><main id="main">'
+    )
+
+
+def _bottom(spec: SiteSpec, rel: str) -> str:
+    b = spec.business
+    phone = b.phone_display or b.phone_e164
+    parts: list[str] = []
     parts.append("</main>")
     from datetime import UTC, datetime
 
@@ -240,7 +257,8 @@ def render_index(spec: SiteSpec) -> str:
         + (f", {e(b.address.state)}" if b.address.state else "")
         + "</p>"
         + (f'<p>Phone: <a href="tel:{e(b.phone_e164)}">{e(phone)}</a></p>' if b.phone_e164 else "")
-        + f'<p><a href="privacy/">Privacy policy</a></p><p><small>{year_note}. '
+        + _all_pages(spec, rel)
+        + f'<p><a href="{rel}privacy/">Privacy policy</a></p><p><small>{year_note}. '
         + e(" · ".join(spec.attribution))
         + "</small></p></div></footer>"
     )
@@ -253,10 +271,73 @@ def render_index(spec: SiteSpec) -> str:
         )
     if bar:
         parts.append('<nav class="callbar" aria-label="Quick contact">' + "".join(bar) + "</nav>")
+    return "".join(parts)
+
+
+def _all_pages(spec: SiteSpec, rel: str) -> str:
+    if not spec.pages:
+        return ""
+    links = "".join(
+        f'<li><a href="{e(_href(rel, p.path))}">{e(p.nav_label)}</a></li>' for p in spec.pages
+    )
+    return f'<nav aria-label="All pages"><ul class="pagelist">{links}</ul></nav>'
+
+
+def render_index(spec: SiteSpec) -> str:
+    b = spec.business
+    parts: list[str] = [_head(spec, spec.seo.title, spec.seo.description), _top(spec, "./")]
+    img = spec.hero.fallback_image
+    cta = spec.hero.cta_primary
+    second = spec.hero.cta_secondary
+    parts.append(
+        f'<div class="hero"><img src="{e(img.src)}" alt="{e(img.alt)}" width="1600" height="900" '
+        f'fetchpriority="high"><div class="wrap"><div class="card"><p>{e(b.tagline)}</p>'
+        f"<h1>{e(spec.hero.headline)}</h1><p>{e(spec.hero.subheadline)}</p>"
+        f'<p style="display:flex;flex-wrap:wrap;gap:.75rem"><a class="btn" href="{e(cta.href)}">{e(cta.label)}</a>'
+        + (
+            f'<a class="btn ghost" style="color:#fff;box-shadow:inset 0 0 0 2px #fff" href="{e(second.href)}">{e(second.label)}</a>'
+            if second
+            else ""
+        )
+        + "</p></div></div></div>"
+    )
+    parts.append(_sections(spec, list(spec.sections)))
+    parts.append(_bottom(spec, "./"))
     parts.append(
         f'<script type="application/ld+json">{json.dumps(jsonld(spec))}</script></body></html>'
     )
     return "".join(parts)
+
+
+def render_page(spec: SiteSpec, page: Page) -> str:
+    """An inner page: written intro, marked placeholders, then the shared sections."""
+    rel = _rel(page.path)
+    crumbs = f'<a href="{rel}">Home</a>'
+    parent = next((p for p in spec.pages if p.path == page.parent), None)
+    if parent is not None:
+        crumbs += f' / <a href="{e(_href(rel, parent.path))}">{e(parent.nav_label)}</a>'
+    children = [p for p in spec.pages if p.parent == page.path]
+    holders = "".join(
+        f'<div class="tile tbc" role="note"><strong>Placeholder</strong>'
+        f"<p>{e(h)}</p><small>To be supplied by {e(spec.business.name)}</small></div>"
+        for h in page.placeholders
+    )
+    kids = "".join(
+        f'<a class="tile" href="{e(_href(rel, c.path))}"><h3>{e(c.nav_label)}</h3></a>'
+        for c in children
+    )
+    return (
+        _head(spec, page.title, page.description, page.path.strip("/") + "/")
+        + _top(spec, rel)
+        + f'<section class="pagehead"><div class="wrap"><p class="crumbs">{crumbs}</p>'
+        f"<h1>{e(page.heading)}</h1><p>{e(page.intro)}</p>"
+        + (f'<div class="grid">{kids}</div>' if kids else "")
+        + (f'<div class="grid">{holders}</div>' if holders else "")
+        + "</div></section>"
+        + _sections(spec, list(page.sections), rel)
+        + _bottom(spec, rel)
+        + "</body></html>"
+    )
 
 
 def render_privacy(spec: SiteSpec) -> str:
@@ -309,8 +390,49 @@ def write_site(spec: SiteSpec, out: Path, assets: dict[str, bytes]) -> Path:
         if spec.noindex
         else f"User-agent: *\nAllow: /\nSitemap: {base}/sitemap.xml\n"
     )
+    for page in spec.pages:
+        target = out / page.path.strip("/")
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "index.html").write_text(render_page(spec, page), encoding="utf-8")
+    locs = ["/", *(p.path + "/" for p in spec.pages), "/privacy/"]
     (out / "sitemap.xml").write_text(
         '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        f"<url><loc>{e(base)}/</loc></url><url><loc>{e(base)}/privacy/</loc></url></urlset>"
+        + "".join(f"<url><loc>{e(base)}{e(loc)}</loc></url>" for loc in locs)
+        + "</urlset>"
     )
+    write_redirects(spec, out)
     return out
+
+
+_FILE_EXT = (".html", ".htm")
+
+
+def write_redirects(spec: SiteSpec, out: Path) -> None:
+    """Keep every old address working on a static host: a tiny page at the old path that
+    sends visitors (and search engines, via canonical) to the new one."""
+    root = out.resolve()
+    for r in spec.redirects:
+        rel_path = r.from_path.strip("/")
+        if not rel_path:
+            continue
+        if rel_path.lower().endswith(_FILE_EXT):
+            file = out / rel_path
+            depth = rel_path.count("/")
+        else:
+            file = out / rel_path / "index.html"
+            depth = rel_path.count("/") + 1
+        if not str(file.resolve()).startswith(str(root)) or file.exists():
+            continue
+        target = "../" * depth + (r.to_path.strip("/") + "/" if r.to_path != "/" else "")
+        target = target or "./"
+        canonical = spec.site_url.rstrip("/") + (r.to_path.rstrip("/") + "/")
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8">'
+            f'<title>Moved</title><meta name="robots" content="noindex">'
+            f'<link rel="canonical" href="{e(canonical)}">'
+            f'<meta http-equiv="refresh" content="0; url={e(target)}"></head>'
+            f'<body><p>This page has moved to <a href="{e(target)}">{e(r.to_path)}</a>.</p>'
+            "</body></html>",
+            encoding="utf-8",
+        )

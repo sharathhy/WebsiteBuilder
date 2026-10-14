@@ -33,6 +33,8 @@ class GeneratedSite(UUIDPk, Timestamps, Base):
     custom_domain: Mapped[str | None] = mapped_column(String(255))
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     failure_reason: Mapped[str | None] = mapped_column(Text)
+    # Which of the current site's pages answer on the preview: {expected, present, missing, pages}
+    page_parity: Mapped[dict[str, Any] | None] = mapped_column()
 
 
 class FormSubmission(UUIDPk, Timestamps, Base):

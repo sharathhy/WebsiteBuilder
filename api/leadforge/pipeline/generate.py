@@ -21,6 +21,7 @@ from leadforge.pipeline.context import JobContext
 from leadforge.pipeline.registry import PermanentError, handler
 from leadforge.prompts.site_copy import SITE_COPY
 from leadforge.schemas.site_spec import SPEC_VERSION, ImageAsset
+from leadforge.services import pages as page_inventory
 from leadforge.services import sitespec
 from leadforge.services.art import hero_svg
 from leadforge.services.brand import build_palette
@@ -34,7 +35,12 @@ GATE_MIN_SCORE = 90
 GATE_MIN_IMPROVEMENT = 30
 
 
-def gate(score: int, baseline: int) -> tuple[bool, str | None]:
+def gate(score: int, baseline: int, missing: list[str] | None = None) -> tuple[bool, str | None]:
+    if missing:
+        shown = ", ".join(missing[:5]) + (
+            f" and {len(missing) - 5} more" if len(missing) > 5 else ""
+        )
+        return False, f"missing {len(missing)} of the current site's pages: {shown}"
     if score < GATE_MIN_SCORE:
         return False, f"score {score} < {GATE_MIN_SCORE}"
     if score - baseline < GATE_MIN_IMPROVEMENT:
@@ -78,7 +84,16 @@ async def generate(ctx: JobContext) -> dict[str, Any]:
     if website is not None:
         home = await ctx.services.fetcher.get(website.final_url or website.url)
         site_html = home.text if home.ok and not home.is_parked else None
+        if site_html is not None and not website.page_inventory:
+            # Crawled before page parity existed: list the pages now.
+            found, stats = await page_inventory.build_inventory(
+                ctx.services.fetcher, home, max_pages=settings.page_inventory_max
+            )
+            website.page_inventory = [p.as_dict() for p in found]
+            website.page_inventory_stats = stats
     palette = build_palette(template, site_html)
+    # Page parity: every page of the current site gets a page on the new one.
+    inventory = [p for p in (website.page_inventory if website else []) if p.get("fetched", True)]
 
     site = await ctx.db.scalar(
         select(GeneratedSite).where(GeneratedSite.business_id == biz.id)
@@ -149,6 +164,8 @@ async def generate(ctx: JobContext) -> dict[str, Any]:
             booking_url=None,
             turnstile_site_key=settings.turnstile_site_key,
             enable_3d=fix.get("enable_3d", True),
+            inventory=inventory,
+            category_label=label,
         )
         site.site_spec = spec.model_dump(mode="json")
         assets = {
@@ -181,7 +198,11 @@ async def generate(ctx: JobContext) -> dict[str, Any]:
         audit = await run_audit(ctx, biz, deployed.url, generated_site_id=site.id)
         await ctx.db.commit()
         score = audit.total_score or 0
-        ok, why = gate(score, baseline)
+        parity = await page_inventory.check_parity(
+            ctx.services.fetcher, deployed.url, inventory, spec
+        )
+        site.page_parity = parity
+        ok, why = gate(score, baseline, parity["missing"])
         history.append(
             {
                 "attempt": attempt,
@@ -191,6 +212,7 @@ async def generate(ctx: JobContext) -> dict[str, Any]:
                 "passed": ok,
                 "reason": why,
                 "audit_id": str(audit.id),
+                "pages": f"{parity['present']}/{parity['expected']}",
                 "fix": fix,
             }
         )
@@ -222,4 +244,5 @@ async def generate(ctx: JobContext) -> dict[str, Any]:
         "baseline": baseline,
         "score": site.score,
         "attempts": history,
+        "page_parity": site.page_parity,
     }

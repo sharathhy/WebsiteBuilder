@@ -6,11 +6,18 @@ from pathlib import Path
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from leadforge.models import Audit, Business, Campaign, EmailDraft, GeneratedSite, Job
-from leadforge.models.enums import AuditStatus, DraftStatus, GeneratedSiteStatus, JobStatus
+from leadforge.models import Audit, Business, Campaign, EmailDraft, GeneratedSite, Job, Website
+from leadforge.models.enums import (
+    AuditStatus,
+    DraftStatus,
+    GeneratedSiteStatus,
+    JobQueue,
+    JobStatus,
+)
 from leadforge.pipeline.runner import InlineDispatcher
 from leadforge.services.campaigns import start_campaign
 from leadforge.services.container import Services
+from leadforge.services.jobs import create_job
 from leadforge.services.targets import load_targets
 
 
@@ -64,6 +71,23 @@ async def test_bengaluru_and_austin_dentists_end_to_end(
         assert site.score >= (site.baseline_score or 0) + 30
         assert site.preview_url and site.noindex
 
+    # Page parity: every page of the current site answers on the preview.
+    websites = {w.business_id: w for w in await db.scalars(select(Website))}
+    checked = 0
+    for b in low:
+        site, web = sites[b.id], websites.get(b.id)
+        if web is None or not web.page_inventory:
+            continue
+        parity = site.page_parity
+        assert parity and parity["missing"] == [], parity
+        assert parity["expected"] == len(web.page_inventory) > 3
+        spec_paths = {p["path"] for p in site.site_spec["pages"]}
+        for page in web.page_inventory:
+            if page["kind"] not in ("home", "privacy"):
+                assert page["path"].removesuffix(".html") in spec_paths
+        checked += 1
+    assert checked, "fixtures should include multi-page sites to rebuild"
+
     # Outreach is drafted, never sent.
     drafts = list(await db.scalars(select(EmailDraft)))
     assert drafts and all(d.status == DraftStatus.DRAFTED for d in drafts)
@@ -87,3 +111,42 @@ async def test_rerunning_a_campaign_is_idempotent(
     await run_campaign(db, inline, ["austin"], 5)
     assert await db.scalar(select(func.count()).select_from(Business)) == first
     assert await db.scalar(select(func.count()).select_from(GeneratedSite)) == sites
+
+
+async def test_regenerate_backfills_the_page_list(
+    db: AsyncSession, inline: InlineDispatcher, services: Services
+) -> None:
+    """Leads crawled before page parity existed get their page list on the next build."""
+    await run_campaign(db, inline, ["austin"], 20)
+    site = await db.scalar(
+        select(GeneratedSite)
+        .join(Website, Website.business_id == GeneratedSite.business_id)
+        .where(GeneratedSite.status == GeneratedSiteStatus.LIVE)
+        .limit(1)
+    )
+    assert site is not None
+    site_id, biz_id = site.id, site.business_id
+    web = await db.scalar(select(Website).where(Website.business_id == biz_id))
+    assert web is not None and len(web.page_inventory) > 3
+    expected = [p["path"] for p in web.page_inventory]
+    web.page_inventory = []
+    await db.commit()
+
+    job, _ = await create_job(
+        db, queue=JobQueue.GENERATE, kind="generate", business_id=biz_id,
+        payload={"force": True}, idempotency_key="generate:backfill",
+    )  # fmt: skip
+    await inline.dispatch(job)
+    await inline.drain()
+    db.expire_all()
+    web = await db.scalar(select(Website).where(Website.business_id == biz_id))
+    assert web is not None and [p["path"] for p in web.page_inventory] == expected
+    newest = await db.scalar(
+        select(GeneratedSite)
+        .where(GeneratedSite.business_id == biz_id)
+        .order_by(GeneratedSite.created_at.desc())
+        .limit(1)
+    )
+    assert newest is not None and newest.id != site_id
+    assert newest.page_parity and newest.page_parity["missing"] == []
+    assert newest.page_parity["expected"] == len(expected)

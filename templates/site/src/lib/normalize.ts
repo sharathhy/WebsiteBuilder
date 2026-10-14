@@ -141,6 +141,25 @@ export function normalizeSpec(raw: any): SiteSpec {
       provider: an.provider === "plausible" || an.provider === "ga4" ? an.provider : null,
       id: str(an.id),
     },
+    pages: arr<any>(raw.pages)
+      .filter((p) => typeof p?.path === "string" && /^\/[a-z0-9-]+(\/[a-z0-9-]+)*$/.test(p.path))
+      .map((p) => ({
+        path: p.path,
+        kind: String(p.kind ?? "other"),
+        nav_label: String(p.nav_label ?? p.heading ?? p.path),
+        in_nav: p.in_nav !== false,
+        parent: str(p.parent),
+        title: String(p.title ?? p.heading ?? ""),
+        description: String(p.description ?? ""),
+        heading: String(p.heading ?? p.nav_label ?? ""),
+        intro: String(p.intro ?? ""),
+        sections: arr<string>(p.sections).filter((s) => SECTION_TYPES.includes(s as never)) as SiteSpec["sections"],
+        placeholders: arr<string>(p.placeholders).map(String),
+        source_path: str(p.source_path),
+      })),
+    redirects: arr<any>(raw.redirects)
+      .filter((r) => str(r?.from_path) && str(r?.to_path))
+      .map((r) => ({ from_path: String(r.from_path), to_path: String(r.to_path) })),
     placeholders: arr<string>(raw.placeholders).map(String).filter(Boolean),
     attribution: arr<string>(raw.attribution).map(String).filter(Boolean),
   };

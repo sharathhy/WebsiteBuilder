@@ -517,10 +517,10 @@ const RENDERERS: Record<SectionType, (p: P) => React.ReactNode> = {
 };
 
 /** Which listed sections actually have content (used for nav + alternating backgrounds). */
-export function renderableSections(ctx: SiteCtx): SectionType[] {
+export function renderableSections(ctx: SiteCtx, list?: SectionType[]): SectionType[] {
   const { spec } = ctx;
   const r = effectiveRating(spec);
-  return spec.sections.filter((s) => {
+  return (list ?? spec.sections).filter((s) => {
     switch (s) {
       case "services":
         return spec.services.length > 0;
@@ -544,12 +544,12 @@ export function renderableSections(ctx: SiteCtx): SectionType[] {
   });
 }
 
-export function Sections({ ctx, sections }: { ctx: SiteCtx; sections: SectionType[] }) {
+export function Sections({ ctx, sections, offset = 0 }: { ctx: SiteCtx; sections: SectionType[]; offset?: number }) {
   return (
     <>
       {sections.map((s, i) => {
         const R = RENDERERS[s];
-        return <R key={s} ctx={ctx} alt={i % 2 === 1} />;
+        return <R key={s} ctx={ctx} alt={(i + offset) % 2 === 1} />;
       })}
     </>
   );

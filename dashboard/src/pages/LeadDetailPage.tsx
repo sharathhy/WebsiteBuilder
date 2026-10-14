@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { api, type Job } from "@/lib/api";
-import type { AuditView, LeadDetail } from "@/lib/types";
+import type { AuditView, InventoryPage, LeadDetail, PageParity } from "@/lib/types";
 import { CATEGORY_LABELS, cn } from "@/lib/utils";
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
@@ -36,6 +36,39 @@ function Breakdown({ audit }: { audit: AuditView }) {
   );
 }
 
+const PAGE_STATUS = {
+  ok: { tone: "green", label: "Rebuilt" },
+  redirect: { tone: "green", label: "Redirects" },
+  missing: { tone: "red", label: "Missing" },
+} as const;
+
+/** Every page of the business's current site and whether the new preview has it. */
+export function PageParityList({ parity }: { parity: PageParity }) {
+  const all = parity.missing.length === 0;
+  return (
+    <div className="mt-4">
+      <h3 className="mb-1 text-sm font-semibold">
+        Pages from the current site{" "}
+        <span className={cn("font-normal", all ? "text-emerald-700" : "text-red-700")}>
+          {parity.present} of {parity.expected} on the new site
+        </span>
+      </h3>
+      <ul className="divide-y divide-slate-100 text-sm">
+        {parity.pages.map((p) => (
+          <li key={p.path} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5">
+            <code className="text-slate-700">{p.path}</code>
+            {p.new_path !== p.path && <span className="text-slate-500">→ {p.new_path}</span>}
+            <span className="text-slate-500">{p.label}</span>
+            <Badge tone={PAGE_STATUS[p.status].tone} className="ml-auto">
+              {PAGE_STATUS[p.status].label}
+            </Badge>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function LeadDetailPage() {
   const { id = "" } = useParams();
   const qc = useQueryClient();
@@ -58,6 +91,9 @@ export function LeadDetailPage() {
   if (detail.isError) return <p className="text-sm text-red-600">{detail.error.message}</p>;
   if (!d) return <p className="text-sm text-slate-500">Loading…</p>;
   const lead = d.lead;
+  const inventory = ((d.website?.page_inventory as InventoryPage[] | undefined) ?? []).filter(
+    (p) => p.path !== "/",
+  );
   const original = d.audits.find((a) => !a.generated_site_id && a.status === "completed");
   const failed = d.audits.find((a) => !a.generated_site_id && a.status === "failed");
   const site = d.sites[0];
@@ -172,6 +208,14 @@ export function LeadDetailPage() {
             </Button>
           </div>
           {action.isError && <p className="mt-2 text-sm text-red-600">{action.error.message}</p>}
+          {inventory.length > 0 && (
+            <p className="mt-3 text-sm text-slate-600">
+              <span className="font-medium text-slate-800">
+                Current site has {inventory.length} {inventory.length === 1 ? "page" : "pages"}:
+              </span>{" "}
+              {inventory.map((p) => p.label || p.path).join(" · ")}
+            </p>
+          )}
           {!lead.has_website && (
             <p className="mt-3 text-sm text-slate-600">
               No website listed on Google. Scored 0, so it went straight to the rebuild queue.
@@ -289,6 +333,9 @@ export function LeadDetailPage() {
                 />
               </div>
             </>
+          )}
+          {site.page_parity && site.page_parity.expected > 0 && (
+            <PageParityList parity={site.page_parity} />
           )}
           {siteAudit && (
             <div className="mt-4">

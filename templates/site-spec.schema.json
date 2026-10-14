@@ -487,6 +487,128 @@
       "title": "Link",
       "type": "object"
     },
+    "Page": {
+      "description": "An inner page that mirrors a page of the business's current site (page parity).\n\nCopy is written from the business facts LeadForge holds, never copied from the old\npage; whatever only the owner can supply is listed in `placeholders` and rendered on\nthe page as a clearly marked placeholder.",
+      "properties": {
+        "path": {
+          "pattern": "^/[a-z0-9-]+(?:/[a-z0-9-]+)*$",
+          "title": "Path",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "about",
+            "services",
+            "services-detail",
+            "menu",
+            "pricing",
+            "team",
+            "gallery",
+            "testimonials",
+            "faq",
+            "blog",
+            "blog-detail",
+            "booking",
+            "contact",
+            "location",
+            "events",
+            "careers",
+            "terms",
+            "other"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "nav_label": {
+          "maxLength": 40,
+          "title": "Nav Label",
+          "type": "string"
+        },
+        "in_nav": {
+          "default": true,
+          "title": "In Nav",
+          "type": "boolean"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent"
+        },
+        "title": {
+          "maxLength": 70,
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 170,
+          "title": "Description",
+          "type": "string"
+        },
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "intro": {
+          "title": "Intro",
+          "type": "string"
+        },
+        "sections": {
+          "items": {
+            "enum": [
+              "services",
+              "about",
+              "social_proof",
+              "gallery",
+              "hours",
+              "map",
+              "faq",
+              "pricing",
+              "contact"
+            ],
+            "type": "string"
+          },
+          "title": "Sections",
+          "type": "array"
+        },
+        "placeholders": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Placeholders",
+          "type": "array"
+        },
+        "source_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Path"
+        }
+      },
+      "required": [
+        "path",
+        "kind",
+        "nav_label",
+        "title",
+        "description",
+        "heading",
+        "intro"
+      ],
+      "title": "Page",
+      "type": "object"
+    },
     "PricingTier": {
       "properties": {
         "name": {
@@ -511,6 +633,26 @@
         "features"
       ],
       "title": "PricingTier",
+      "type": "object"
+    },
+    "Redirect": {
+      "description": "An old address that must keep working, e.g. /menu.html -> /menu.",
+      "properties": {
+        "from_path": {
+          "pattern": "^/[A-Za-z0-9._~!$&'()*+,;=:@%/-]*$",
+          "title": "From Path",
+          "type": "string"
+        },
+        "to_path": {
+          "title": "To Path",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from_path",
+        "to_path"
+      ],
+      "title": "Redirect",
       "type": "object"
     },
     "Seo": {
@@ -781,7 +923,7 @@
   },
   "properties": {
     "spec_version": {
-      "default": "1.0",
+      "default": "1.1",
       "title": "Spec Version",
       "type": "string"
     },
@@ -913,6 +1055,20 @@
         "provider": null,
         "id": null
       }
+    },
+    "pages": {
+      "items": {
+        "$ref": "#/$defs/Page"
+      },
+      "title": "Pages",
+      "type": "array"
+    },
+    "redirects": {
+      "items": {
+        "$ref": "#/$defs/Redirect"
+      },
+      "title": "Redirects",
+      "type": "array"
     },
     "placeholders": {
       "items": {

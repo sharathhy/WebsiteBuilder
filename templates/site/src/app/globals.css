@@ -759,3 +759,11 @@ html.lenis body {
   background: currentColor;
   animation: pulse-dot 1.8s ease-out infinite;
 }
+
+/* Inner-page placeholder: content only the owner can supply (page parity). */
+.placeholder-card {
+  border: 2px dashed color-mix(in oklab, var(--color-primary-text, currentColor) 45%, transparent);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem;
+  background: color-mix(in oklab, var(--color-surface-2, transparent) 70%, transparent);
+}

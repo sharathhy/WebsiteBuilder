@@ -77,8 +77,10 @@ or `auto` to use Next when it is installed.
   after a reply, unsubscribe, bounce, or a won/lost mark.
 - **WhatsApp and call scripts** are never sent automatically: copy, send yourself, then
   mark sent.
-- **Manual review** sites (failed the quality gate 3 times) show every attempt's score;
-  use Regenerate after changing the template or spec.
+- **Manual review** sites (failed the quality gate 3 times) show every attempt's score
+  and, under "Pages from the current site", any original page that didn't answer on the
+  preview; use Regenerate after changing the template or spec. Leads crawled before page
+  parity existed get their page list built on the next Regenerate.
 - **Contact forms** on previews store messages in `form_submissions` and never forward
   them to the business while the site is only a preview.
 

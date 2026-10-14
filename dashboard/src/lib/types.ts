@@ -98,7 +98,30 @@ export interface Site {
   baseline_score: number | null;
   expires_at: string | null;
   failure_reason: string | null;
+  page_parity: PageParity | null;
   created_at: string;
+}
+
+/** Page parity: which pages of the current site answer on the new preview. */
+export interface PageParity {
+  expected: number;
+  present: number;
+  missing: string[];
+  pages: {
+    path: string;
+    label: string | null;
+    kind: string | null;
+    new_path: string;
+    status: "ok" | "redirect" | "missing";
+    http_status: number | null;
+  }[];
+}
+
+export interface InventoryPage {
+  path: string;
+  label: string;
+  kind: string;
+  source: string;
 }
 
 export interface AuditView {

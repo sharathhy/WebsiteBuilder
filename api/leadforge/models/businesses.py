@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, text
 from sqlalchemy.orm import Mapped, mapped_column
 
 from leadforge.db.base import Base, Timestamps, UUIDPk, str_enum
@@ -107,4 +107,7 @@ class Website(UUIDPk, Timestamps, Base):
     crawl_delay_s: Mapped[float | None] = mapped_column(Float)
     tech_stack: Mapped[list[Any]] = mapped_column(default=list)
     pages_crawled: Mapped[list[Any]] = mapped_column(default=list)
+    # Page parity: every public page of the current site (path, label, kind; no page text).
+    page_inventory: Mapped[list[Any]] = mapped_column(default=list, server_default=text("'[]'"))
+    page_inventory_stats: Mapped[dict[str, Any] | None] = mapped_column()
     last_crawled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

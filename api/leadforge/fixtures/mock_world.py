@@ -195,18 +195,61 @@ def places_payload(b: MockBusiness) -> dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def _business_from_domain(domain: str) -> tuple[str, Quality, str, random.Random]:
-    """Recover (name, quality, phone, rng) from a slug made by site_slug()."""
+def _business_from_domain(domain: str) -> tuple[str, Quality, str, str, random.Random]:
+    """Recover (name, quality, phone, category, rng) from a slug made by site_slug()."""
     rng = _rng("site", domain)
     slug = domain.removesuffix(".example")
     try:
         head, category, city, cc = slug.split("--")
         seq = int(head.removeprefix("sample-"))
     except ValueError:
-        return slug, "decent", "+1 512 555 0100", rng
+        return slug, "decent", "+1 512 555 0100", "", rng
     quality = _pick_quality(_rng(city, category, seq))
     name = f"Sample {category.replace('-', ' ').title()} {seq:02d}"
-    return name, quality, mock_phone(cc.upper(), seq, category), rng
+    return name, quality, mock_phone(cc.upper(), seq, category), category, rng
+
+
+# Extra pages each mock site publishes beyond home/about/contact, by category and quality,
+# so page parity has something realistic to reproduce. Old "poor" sites use .html paths.
+_EXTRA_PAGES: dict[str, dict[str, list[tuple[str, str]]]] = {
+    "dentists": {
+        "good": [("/services", "Treatments"), ("/services/teeth-whitening", "Teeth whitening"),
+                 ("/services/dental-implants", "Dental implants"), ("/team", "Our team"),
+                 ("/faq", "FAQ"), ("/blog", "Blog")],
+        "decent": [("/services", "Treatments"), ("/team", "Our team")],
+        "dated": [("/services", "Treatments"), ("/gallery", "Gallery")],
+        "poor": [("/services.html", "Services"), ("/gallery.html", "Photos")],
+    },
+    "restaurants": {
+        "good": [("/menu", "Menu"), ("/reservations", "Reservations"), ("/gallery", "Gallery"),
+                 ("/events", "Private events")],
+        "decent": [("/menu", "Menu"), ("/gallery", "Gallery")],
+        "dated": [("/menu", "Menu")],
+        "poor": [("/menu.html", "Our menu")],
+    },
+    "salons-spas": {
+        "good": [("/services", "Services"), ("/pricing", "Price list"), ("/gallery", "Lookbook"),
+                 ("/team", "Stylists"), ("/book", "Book online")],
+        "decent": [("/services", "Services"), ("/pricing", "Price list")],
+        "dated": [("/services", "Services")],
+        "poor": [("/price-list.html", "Price list")],
+    },
+}  # fmt: skip
+_DEFAULT_EXTRA: dict[str, list[tuple[str, str]]] = {
+    "good": [("/services", "Services"), ("/faq", "FAQ")],
+    "decent": [("/services", "Services")],
+    "dated": [("/services", "Services")],
+    "poor": [("/services.html", "Services")],
+}
+
+
+def mock_pages(category: str, quality: str) -> list[tuple[str, str]]:
+    """(path, nav label) for every page of a mock site, home first."""
+    pages = [("/", "Home"), ("/about", "About"), ("/contact", "Contact us")]
+    pages += _EXTRA_PAGES.get(category, _DEFAULT_EXTRA).get(quality, [])
+    if quality in ("good", "decent"):
+        pages.append(("/privacy", "Privacy policy"))
+    return pages
 
 
 def mock_site_response(url: str) -> tuple[int, dict[str, str], str]:
@@ -214,7 +257,8 @@ def mock_site_response(url: str) -> tuple[int, dict[str, str], str]:
     _scheme, rest = url.split("://", 1)
     domain, _, path = rest.partition("/")
     path = "/" + path.split("?", 1)[0]
-    name, quality, phone, rng = _business_from_domain(domain)
+    name, quality, phone, category, rng = _business_from_domain(domain)
+    site_pages = mock_pages(category, quality)
     headers = {"content-type": "text/html; charset=utf-8"}
     if quality in ("good", "decent"):
         headers.update(
@@ -233,10 +277,11 @@ def mock_site_response(url: str) -> tuple[int, dict[str, str], str]:
             body += "Crawl-delay: 2\n"
         return 200, {"content-type": "text/plain"}, body
     if path == "/sitemap.xml" and quality == "good":
+        locs = "".join(f"<url><loc>https://{domain}{p}</loc></url>" for p, _ in site_pages)
         return (
             200,
             {"content-type": "application/xml"},
-            ('<?xml version="1.0"?><urlset><url><loc>https://' + domain + "/</loc></url></urlset>"),
+            f'<?xml version="1.0"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{locs}</urlset>',
         )
     if quality == "parked":
         return (
@@ -258,19 +303,38 @@ def mock_site_response(url: str) -> tuple[int, dict[str, str], str]:
             ),
         )
 
-    pages = {"/", "/contact", "/contact/", "/about", "/about/", "/contact-us", "/about-us"}
-    if path not in pages:
+    valid = {p for p, _ in site_pages} | {"/contact-us", "/about-us"}
+    valid |= {p + "/" for p in valid if p != "/"}
+    if path not in valid:
         return 404, headers, "<html><body><h1>Not found</h1></body></html>"
-    return 200, headers, _render_site(domain, name, quality, phone, path, rng)
+    return 200, headers, _render_site(domain, name, quality, phone, path, rng, site_pages)
 
 
 def _render_site(
-    domain: str, name: str, quality: Quality, phone: str, path: str, rng: random.Random
+    domain: str,
+    name: str,
+    quality: Quality,
+    phone: str,
+    path: str,
+    rng: random.Random,
+    site_pages: list[tuple[str, str]],
 ) -> str:
     email_user = rng.choice(["info", "hello", "contact", "appointments"])
     email = f"{email_user}@{domain}"
     year = {"poor": 2014, "dated": 2019}.get(quality, 2026)
-    nav = '<a href="/">Home</a> <a href="/about">About</a> <a href="/contact">Contact us</a>'
+    # Nested pages (/services/x) are linked from their parent and the sitemap, not the nav.
+    nav = " ".join(
+        f'<a href="{p}">{label}</a>'
+        for p, label in site_pages
+        if p.count("/") == 1 and p != "/privacy"
+    )
+    if path.rstrip("/") == "/services" or path == "/services.html":
+        nav += "".join(
+            f' <a href="{p}">{label}</a>' for p, label in site_pages if p.startswith("/services/")
+        )
+    if quality == "good":
+        nav += ' <a href="/private/staff">Staff login</a>'  # disallowed in robots.txt
+    title = next((label for p, label in site_pages if p == path.rstrip("/") and p != "/"), None)
 
     if quality == "poor":
         # No viewport, table layout, obfuscated email, heavy inline images, no meta description.
@@ -280,7 +344,7 @@ def _render_site(
             else ""
         )
         return (
-            f"<html><head><title>{name}</title>"
+            f"<html><head><title>{(title + ' - ') if title else ''}{name}</title>"
             '<script src="/js/jquery-1.8.3.min.js"></script></head>'
             f'<body bgcolor="#ffffcc"><table width="980"><tr><td>{nav}</td></tr>'
             f"<tr><td><font size=6>Welcome to {name}</font>"
@@ -338,8 +402,8 @@ def _render_site(
     privacy = '<a href="/privacy">Privacy policy</a>' if quality in ("good", "decent") else ""
     return (
         f'<!doctype html><html lang="en"><head><meta charset="utf-8">{viewport}'
-        f"<title>{name} | Local experts</title>{meta}{og}{canonical}{builder}{jsonld}</head>"
-        f"<body><header><nav>{nav}</nav></header><main><h1>{name}</h1>"
+        f"<title>{(title + ' | ') if title else ''}{name} | Local experts</title>{meta}{og}{canonical}{builder}{jsonld}</head>"
+        f"<body><header><nav>{nav}</nav></header><main><h1>{title or name}</h1>"
         f"<p>Serving the neighbourhood since 2009.</p>{cta}"
         '<img src="/img/hero.webp" alt="Our team at work" width="1200" height="600">'
         f"{hours}{contact_block}</main>"

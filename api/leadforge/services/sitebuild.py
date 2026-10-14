@@ -10,7 +10,7 @@ from pathlib import Path
 
 from leadforge.core.config import Settings
 from leadforge.schemas.site_spec import SiteSpec
-from leadforge.services.static_site import write_site
+from leadforge.services.static_site import write_redirects, write_site
 
 
 @dataclass
@@ -95,6 +95,7 @@ async def build_site(
                     ["npm", "run", "check:budget"], template, env, timeout=120
                 )
                 shutil.copytree(template / "out", work / "out")
+                write_redirects(spec, work / "out")
             finally:
                 shutil.rmtree(template / "public" / "generated", ignore_errors=True)
                 fcntl.flock(lock, fcntl.LOCK_UN)

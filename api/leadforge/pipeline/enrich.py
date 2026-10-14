@@ -17,6 +17,7 @@ from leadforge.models.enums import (
 from leadforge.pipeline.context import JobContext
 from leadforge.pipeline.registry import PermanentError, handler
 from leadforge.services import contacts as cx
+from leadforge.services import pages as page_inventory
 from leadforge.services.dedup import domain_of
 
 NOT_FOUND = "not_found"
@@ -80,6 +81,14 @@ async def crawl(ctx: JobContext, biz: Business, site: Website) -> list[cx.FoundC
         if res.ok and "text/html" in res.headers.get("content-type", "text/html"):
             pages.append(res)
     site.pages_crawled = [p.final_url for p in pages]
+    inventory, stats = await page_inventory.build_inventory(
+        fetcher,
+        home,
+        max_pages=settings.page_inventory_max,
+        fetched={p.final_url: p for p in pages} | {p.url: p for p in pages},
+    )
+    site.page_inventory = [p.as_dict() for p in inventory]
+    site.page_inventory_stats = stats
     for page in pages:
         found += cx.extract_emails(page.text, page.final_url)
         found += cx.extract_phones(page.text, page.final_url, biz.country)

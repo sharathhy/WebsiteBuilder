@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     # Crawler etiquette
     crawler_user_agent: str = "LeadForgeBot/0.1 (+https://leadforge.example/bot)"
     crawler_max_pages: int = 10
+    # Page parity: how many pages of a current site are listed and rebuilt (home included).
+    page_inventory_max: int = 30
     crawler_timeout_s: float = 15.0
     crawler_min_delay_s: float = 1.0
     crawler_max_bytes: int = 3_000_000

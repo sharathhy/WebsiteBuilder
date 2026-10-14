@@ -126,6 +126,7 @@ class SiteOut(BaseModel):
     baseline_score: int | None
     expires_at: datetime | None
     failure_reason: str | None
+    page_parity: dict[str, Any] | None = None
     created_at: datetime
 
 

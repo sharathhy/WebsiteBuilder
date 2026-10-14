@@ -217,6 +217,8 @@ async def lead_detail(lead_id: uuid.UUID, _: CurrentUser, db: DbSession) -> Lead
             "robots_allowed": website.robots_allowed,
             "tech_stack": website.tech_stack,
             "pages_crawled": website.pages_crawled,
+            "page_inventory": website.page_inventory,
+            "page_inventory_stats": website.page_inventory_stats,
             "last_crawled_at": website.last_crawled_at,
         },
         audits=[

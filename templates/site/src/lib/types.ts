@@ -169,6 +169,27 @@ export interface Analytics {
   id: string | null;
 }
 
+/** An inner page mirroring a page of the business's current site (page parity). */
+export interface Page {
+  path: string; // "/services/teeth-whitening", no trailing slash
+  kind: string;
+  nav_label: string;
+  in_nav: boolean;
+  parent: string | null;
+  title: string;
+  description: string;
+  heading: string;
+  intro: string;
+  sections: SectionType[];
+  placeholders: string[];
+  source_path: string | null;
+}
+
+export interface Redirect {
+  from_path: string;
+  to_path: string;
+}
+
 export interface SiteSpec {
   spec_version: string;
   template: TemplateId;
@@ -189,6 +210,8 @@ export interface SiteSpec {
   pricing: PricingTier[];
   contact: Contact;
   analytics: Analytics;
+  pages: Page[];
+  redirects: Redirect[];
   placeholders: string[];
   attribution: string[];
 }

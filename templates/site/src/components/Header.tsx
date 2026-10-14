@@ -20,8 +20,13 @@ export const SECTION_LABEL: Record<SectionType, string> = {
 export function Header({ ctx, sections, home = true }: { ctx: SiteCtx; sections: SectionType[]; home?: boolean }) {
   const { spec } = ctx;
   const prefix = home ? "" : withBase("/");
-  const links = sections.map((s) => ({ href: `${prefix}#${s}`, label: SECTION_LABEL[s] }));
-  const desktop = links.filter((l) => !/#(hours|map)$/.test(l.href)).slice(0, 5);
+  // With inner pages (page parity) the menu lists pages, like the business's current site;
+  // a one-page site jumps between home-page sections instead.
+  const navPages = spec.pages.filter((p) => p.in_nav);
+  const links = navPages.length
+    ? [{ href: withBase("/"), label: "Home" }, ...navPages.map((p) => ({ href: withBase(`${p.path}/`), label: p.nav_label }))]
+    : sections.map((s) => ({ href: `${prefix}#${s}`, label: SECTION_LABEL[s] }));
+  const desktop = navPages.length ? links.slice(1, 6) : links.filter((l) => !/#(hours|map)$/.test(l.href)).slice(0, 5);
   const phone = displayPhone(spec);
   return (
     <header className="site-header">
