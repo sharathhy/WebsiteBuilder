@@ -1,0 +1,244 @@
+{
+  "spec_version": "1.0",
+  "template": "restaurant",
+  "locale": "en-IN",
+  "currency": "INR",
+  "site_url": "https://sample-kitchen.example.com",
+  "noindex": true,
+  "business": {
+    "name": "The Sample Kitchen",
+    "category": "Restaurant",
+    "tagline": "Coastal plates, slow evenings",
+    "description": "A warm, candle-lit restaurant serving seasonal coastal cooking, small plates and a short list of house drinks.",
+    "phone_e164": "+912200000000",
+    "phone_display": "+91 22 0000 0000",
+    "whatsapp_e164": "+912200000000",
+    "email": "table@example.com",
+    "address": {
+      "street": "12 Example Lane, Bandra West",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "postal_code": "400050",
+      "country": "IN"
+    },
+    "lat": 19.0596,
+    "lng": 72.8295,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000002",
+    "hours": [
+      {
+        "day": "Tuesday",
+        "opens": "12:00",
+        "closes": "15:30"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "12:00",
+        "closes": "15:30"
+      },
+      {
+        "day": "Thursday",
+        "opens": "12:00",
+        "closes": "15:30"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "19:00",
+        "closes": "23:30"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "19:00",
+        "closes": "23:30"
+      },
+      {
+        "day": "Thursday",
+        "opens": "19:00",
+        "closes": "23:30"
+      },
+      {
+        "day": "Friday",
+        "opens": "12:00",
+        "closes": "15:30"
+      },
+      {
+        "day": "Saturday",
+        "opens": "12:00",
+        "closes": "15:30"
+      },
+      {
+        "day": "Friday",
+        "opens": "19:00",
+        "closes": "01:00"
+      },
+      {
+        "day": "Saturday",
+        "opens": "19:00",
+        "closes": "01:00"
+      },
+      {
+        "day": "Sunday",
+        "opens": "12:00",
+        "closes": "23:00"
+      }
+    ],
+    "rating": 4.6,
+    "review_count": 1874,
+    "socials": [
+      {
+        "platform": "Instagram",
+        "url": "https://instagram.com/example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "The Sample Kitchen — Coastal restaurant in Bandra, Mumbai",
+    "description": "Seasonal coastal cooking and small plates in Bandra West. Reserve a table by phone or WhatsApp.",
+    "primary_keyword": "restaurant in Bandra West, Mumbai",
+    "keywords": [
+      "coastal food Bandra",
+      "dinner Bandra West"
+    ]
+  },
+  "theme": {
+    "primary": "#d9822b",
+    "secondary": "#7a3e1d",
+    "accent": "#e9c46a",
+    "background": "#14100d",
+    "foreground": "#f6efe7",
+    "mode": "dark",
+    "font_heading": "Fraunces",
+    "font_body": "Inter",
+    "radius_px": 14
+  },
+  "hero": {
+    "headline": "Coastal cooking, served slowly",
+    "subheadline": "Seasonal plates, warm light and a table that is yours for the evening.",
+    "cta_primary": {
+      "label": "Reserve a table",
+      "href": "#contact"
+    },
+    "cta_secondary": {
+      "label": "View the menu",
+      "href": "#services"
+    },
+    "model": "plate",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/restaurant/hero.svg",
+      "alt": "Candle-lit table set with plates of food",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "about",
+    "social_proof",
+    "gallery",
+    "hours",
+    "map",
+    "faq",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Prawn ghee roast",
+      "description": "Spiced, buttery and slow-roasted, served with neer dosa.",
+      "icon": "utensils",
+      "price": "640"
+    },
+    {
+      "title": "Kerala fish curry",
+      "description": "Kokum-soured coconut curry with the catch of the day.",
+      "icon": "fish",
+      "price": "720"
+    },
+    {
+      "title": "Chicken sukka",
+      "description": "Dry-roasted with coconut and a house spice blend.",
+      "icon": "drumstick",
+      "price": "560"
+    },
+    {
+      "title": "Seasonal vegetable thali",
+      "description": "A rotating spread of vegetarian plates.",
+      "icon": "salad",
+      "price": null
+    },
+    {
+      "title": "Tender coconut panna cotta",
+      "description": "Light, set cream with jaggery caramel.",
+      "icon": "cake-slice",
+      "price": "340"
+    }
+  ],
+  "about": {
+    "heading": "A small room with a big kitchen",
+    "body": "The Sample Kitchen cooks from the coast: a short menu that changes with what the market brings in.\n\nCome for a long lunch or a slow dinner — we keep the music low and the lights warm."
+  },
+  "social_proof": {
+    "rating": 4.6,
+    "review_count": 1874,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000002",
+    "testimonials": []
+  },
+  "gallery": [
+    {
+      "src": "/samples/restaurant/g1.svg",
+      "alt": "Dining room at dusk",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/restaurant/g2.svg",
+      "alt": "Table with small plates",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/restaurant/g3.svg",
+      "alt": "The bar",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/restaurant/g4.svg",
+      "alt": "Plated dishes",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    }
+  ],
+  "faq": [
+    {
+      "q": "Do you take reservations?",
+      "a": "Yes — call or WhatsApp us, or send a message through the form below."
+    },
+    {
+      "q": "Do you have vegetarian options?",
+      "a": "Yes, including a seasonal vegetarian thali."
+    }
+  ],
+  "pricing": [],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-kitchen-3c4d",
+    "site_id": "sample-kitchen-3c4d",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Real food and interior photos (sample artwork shown)",
+    "Full menu with current prices",
+    "Chef / owner story"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

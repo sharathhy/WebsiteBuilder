@@ -1,0 +1,216 @@
+{
+  "spec_version": "1.0",
+  "template": "home-services",
+  "locale": "en-IN",
+  "currency": "INR",
+  "site_url": "https://sample-fixit.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample FixIt Services",
+    "category": "Plumbing & electrical repairs",
+    "tagline": "Fast, tidy home repairs across Pune",
+    "description": "Plumbing, electrical and appliance repairs for homes and small offices, with clear quotes before work begins.",
+    "phone_e164": "+912000000000",
+    "phone_display": "+91 20 0000 0000",
+    "whatsapp_e164": "+912000000000",
+    "email": null,
+    "address": {
+      "street": "Shop 3, Example Complex, Baner Road",
+      "city": "Pune",
+      "state": "Maharashtra",
+      "postal_code": "411045",
+      "country": "IN"
+    },
+    "lat": 18.559,
+    "lng": 73.7868,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000007",
+    "hours": [
+      {
+        "day": "Monday",
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Thursday",
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Friday",
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Saturday",
+        "opens": "08:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Sunday",
+        "opens": "09:00",
+        "closes": "13:00"
+      }
+    ],
+    "rating": null,
+    "review_count": null,
+    "socials": []
+  },
+  "seo": {
+    "title": "Sample FixIt Services — Plumber & electrician in Baner, Pune",
+    "description": "Plumbing, electrical and appliance repairs in Baner, Pune. Call or WhatsApp for a quote.",
+    "primary_keyword": "plumber in Baner, Pune",
+    "keywords": [
+      "electrician Baner",
+      "home repairs Pune"
+    ]
+  },
+  "theme": {
+    "primary": "#ea580c",
+    "secondary": "#1d4ed8",
+    "accent": "#facc15",
+    "background": "#ffffff",
+    "foreground": "#0f172a",
+    "mode": "light",
+    "font_heading": "Space Grotesk",
+    "font_body": "Inter",
+    "radius_px": 12
+  },
+  "hero": {
+    "headline": "Home repairs, done right the first time",
+    "subheadline": "Plumbing, electrical and appliance fixes with a clear quote before we start.",
+    "cta_primary": {
+      "label": "Call now",
+      "href": "tel:+912000000000"
+    },
+    "cta_secondary": {
+      "label": "Get a quote",
+      "href": "#contact"
+    },
+    "model": "wrench",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/home-services/hero.svg",
+      "alt": "Pipes and tools on a blueprint grid",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "pricing",
+    "about",
+    "hours",
+    "map",
+    "faq",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Plumbing",
+      "description": "Leaks, blockages, taps, fittings and water heaters.",
+      "icon": "droplets",
+      "price": null
+    },
+    {
+      "title": "Electrical",
+      "description": "Wiring, switchboards, lights and fans.",
+      "icon": "zap",
+      "price": null
+    },
+    {
+      "title": "Appliance repair",
+      "description": "Washing machines, refrigerators and microwaves.",
+      "icon": "washing-machine",
+      "price": null
+    },
+    {
+      "title": "Carpentry",
+      "description": "Doors, hinges, shelves and small furniture fixes.",
+      "icon": "hammer",
+      "price": null
+    },
+    {
+      "title": "Painting touch-ups",
+      "description": "Patch repairs and single-room repainting.",
+      "icon": "paint-roller",
+      "price": null
+    },
+    {
+      "title": "Annual maintenance",
+      "description": "Scheduled check-ups for homes and small offices.",
+      "icon": "calendar-check",
+      "price": null
+    }
+  ],
+  "about": {
+    "heading": "Why neighbours call us",
+    "body": "We quote before we start, arrive in the time window we promise, and clean up when we're done."
+  },
+  "social_proof": {
+    "rating": null,
+    "review_count": null,
+    "source": "Google",
+    "source_url": null,
+    "testimonials": []
+  },
+  "gallery": [],
+  "faq": [
+    {
+      "q": "Do you charge a visit fee?",
+      "a": "Please call or WhatsApp for current visit charges; we always confirm before coming."
+    },
+    {
+      "q": "Which areas do you cover?",
+      "a": "Baner and nearby areas of Pune."
+    }
+  ],
+  "pricing": [
+    {
+      "name": "Inspection visit",
+      "price": "299",
+      "features": [
+        "Diagnosis on site",
+        "Written quote"
+      ]
+    },
+    {
+      "name": "Annual maintenance",
+      "price": "On request",
+      "features": [
+        "Two scheduled visits",
+        "Priority call-outs"
+      ]
+    }
+  ],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-fixit-3a4b",
+    "site_id": "sample-fixit-3a4b",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Google rating (not yet available)",
+    "Photos of completed work",
+    "Technician certifications"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

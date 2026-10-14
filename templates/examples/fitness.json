@@ -1,0 +1,237 @@
+{
+  "spec_version": "1.0",
+  "template": "fitness",
+  "locale": "en-US",
+  "currency": "USD",
+  "site_url": "https://sample-strength.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample Strength Club",
+    "category": "Gym",
+    "tagline": "Strength training for real life",
+    "description": "A strength-focused gym with open training, small-group classes and personal coaching in East Austin.",
+    "phone_e164": "+15125550101",
+    "phone_display": "(512) 555-0101",
+    "whatsapp_e164": null,
+    "email": "train@example.com",
+    "address": {
+      "street": "500 Example St",
+      "city": "Austin",
+      "state": "TX",
+      "postal_code": "78702",
+      "country": "US"
+    },
+    "lat": 30.2622,
+    "lng": -97.7198,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000004",
+    "hours": [
+      {
+        "day": "Monday",
+        "opens": "05:00",
+        "closes": "22:00"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "05:00",
+        "closes": "22:00"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "05:00",
+        "closes": "22:00"
+      },
+      {
+        "day": "Thursday",
+        "opens": "05:00",
+        "closes": "22:00"
+      },
+      {
+        "day": "Friday",
+        "opens": "05:00",
+        "closes": "22:00"
+      },
+      {
+        "day": "Saturday",
+        "opens": "07:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Sunday",
+        "opens": "08:00",
+        "closes": "14:00"
+      }
+    ],
+    "rating": 4.7,
+    "review_count": 198,
+    "socials": [
+      {
+        "platform": "Instagram",
+        "url": "https://instagram.com/example"
+      },
+      {
+        "platform": "YouTube",
+        "url": "https://youtube.com/@example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Sample Strength Club — Gym in East Austin",
+    "description": "Open gym, small-group strength classes and personal coaching in East Austin.",
+    "primary_keyword": "gym in East Austin, Austin",
+    "keywords": [
+      "strength gym Austin",
+      "personal trainer East Austin"
+    ]
+  },
+  "theme": {
+    "primary": "#c6f432",
+    "secondary": "#ff5a1f",
+    "accent": "#ffd60a",
+    "background": "#0b0b0c",
+    "foreground": "#f5f5f5",
+    "mode": "dark",
+    "font_heading": "Oswald",
+    "font_body": "Inter",
+    "radius_px": 6
+  },
+  "hero": {
+    "headline": "Get stronger. Every week.",
+    "subheadline": "Coached strength sessions, open gym and a community that shows up.",
+    "cta_primary": {
+      "label": "Book a free intro",
+      "href": "#contact"
+    },
+    "cta_secondary": {
+      "label": "Memberships",
+      "href": "#pricing"
+    },
+    "model": "dumbbell",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/fitness/hero.svg",
+      "alt": "Barbell loaded with plates on a dark gym floor",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "pricing",
+    "social_proof",
+    "gallery",
+    "hours",
+    "map",
+    "faq",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Small-group strength",
+      "description": "Coached barbell sessions with up to eight people.",
+      "icon": "dumbbell",
+      "price": null
+    },
+    {
+      "title": "Personal coaching",
+      "description": "One-to-one programming and form work.",
+      "icon": "user-check",
+      "price": null
+    },
+    {
+      "title": "Conditioning",
+      "description": "Short, hard sessions to build engine and grit.",
+      "icon": "heart-pulse",
+      "price": null
+    },
+    {
+      "title": "Open gym",
+      "description": "Racks, platforms and dumbbells when you need them.",
+      "icon": "timer",
+      "price": null
+    }
+  ],
+  "about": null,
+  "social_proof": {
+    "rating": 4.7,
+    "review_count": 198,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000004",
+    "testimonials": []
+  },
+  "gallery": [
+    {
+      "src": "/samples/fitness/g1.svg",
+      "alt": "Lifting platforms",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/fitness/g2.svg",
+      "alt": "Rack area",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/fitness/g3.svg",
+      "alt": "Conditioning zone",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/fitness/g4.svg",
+      "alt": "Dumbbell wall",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    }
+  ],
+  "faq": [
+    {
+      "q": "I'm new to lifting. Is that okay?",
+      "a": "Yes. Every new member starts with an intro session to learn the basics."
+    },
+    {
+      "q": "Do you offer day passes?",
+      "a": "Message us and we'll let you know current options."
+    }
+  ],
+  "pricing": [
+    {
+      "name": "Open gym",
+      "price": "79",
+      "features": [
+        "Unlimited open gym",
+        "Locker room access"
+      ]
+    },
+    {
+      "name": "Coached",
+      "price": "159",
+      "features": [
+        "Unlimited classes",
+        "Open gym",
+        "Quarterly check-in"
+      ]
+    }
+  ],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-strength-7a8b",
+    "site_id": "sample-strength-7a8b",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Gym photos (sample artwork shown)",
+    "Coach profiles",
+    "Day-pass pricing"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

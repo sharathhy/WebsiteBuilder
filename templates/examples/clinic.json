@@ -1,0 +1,233 @@
+{
+  "spec_version": "1.0",
+  "template": "clinic",
+  "locale": "en-IN",
+  "currency": "INR",
+  "site_url": "https://sample-dental-studio.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample Dental Studio",
+    "category": "Dentist",
+    "tagline": "Gentle, modern dentistry in Indiranagar",
+    "description": "A neighbourhood dental practice offering check-ups, cleaning, fillings and cosmetic treatments in a calm, modern clinic.",
+    "phone_e164": "+918000000000",
+    "phone_display": "+91 80 0000 0000",
+    "whatsapp_e164": "+918000000000",
+    "email": "hello@example.com",
+    "address": {
+      "street": "100 Sample Road, HAL 2nd Stage, Indiranagar",
+      "city": "Bengaluru",
+      "state": "Karnataka",
+      "postal_code": "560038",
+      "country": "IN"
+    },
+    "lat": 12.9719,
+    "lng": 77.6412,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000001",
+    "hours": [
+      {
+        "day": "Monday",
+        "opens": "10:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "10:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "10:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Thursday",
+        "opens": "10:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Friday",
+        "opens": "10:00",
+        "closes": "20:00"
+      },
+      {
+        "day": "Saturday",
+        "opens": "10:00",
+        "closes": "14:00"
+      }
+    ],
+    "rating": 4.8,
+    "review_count": 212,
+    "socials": [
+      {
+        "platform": "Instagram",
+        "url": "https://instagram.com/example"
+      },
+      {
+        "platform": "Facebook",
+        "url": "https://facebook.com/example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Sample Dental Studio — Dentist in Indiranagar, Bengaluru",
+    "description": "Check-ups, cleaning, fillings and cosmetic dentistry in Indiranagar, Bengaluru. Call or WhatsApp to book.",
+    "primary_keyword": "dentist in Indiranagar, Bengaluru",
+    "keywords": [
+      "dental clinic Indiranagar",
+      "teeth cleaning Bengaluru"
+    ]
+  },
+  "theme": {
+    "primary": "#0f766e",
+    "secondary": "#0e7490",
+    "accent": "#38bdf8",
+    "background": "#f7fafc",
+    "foreground": "#0f1f2e",
+    "mode": "light",
+    "font_heading": "Manrope",
+    "font_body": "Inter",
+    "radius_px": 20
+  },
+  "hero": {
+    "headline": "A calmer way to look after your smile",
+    "subheadline": "Check-ups, cleaning and cosmetic care from a friendly team in Indiranagar.",
+    "cta_primary": {
+      "label": "Book a visit",
+      "href": "#contact"
+    },
+    "cta_secondary": {
+      "label": "See treatments",
+      "href": "#services"
+    },
+    "model": "tooth",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/clinic/hero.svg",
+      "alt": "Bright, modern dental treatment room",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "about",
+    "social_proof",
+    "gallery",
+    "hours",
+    "map",
+    "faq",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Check-up & cleaning",
+      "description": "A full examination, scaling and polishing, with advice tailored to you.",
+      "icon": "stethoscope",
+      "price": "1500"
+    },
+    {
+      "title": "Fillings",
+      "description": "Tooth-coloured fillings that restore strength and look natural.",
+      "icon": "shield-check",
+      "price": null
+    },
+    {
+      "title": "Teeth whitening",
+      "description": "In-clinic whitening for a brighter smile, supervised by a dentist.",
+      "icon": "sparkles",
+      "price": null
+    },
+    {
+      "title": "Root canal treatment",
+      "description": "Careful treatment to save an infected tooth, with clear explanations at each step.",
+      "icon": "activity",
+      "price": null
+    },
+    {
+      "title": "Children's dentistry",
+      "description": "Patient, gentle care that helps children feel at ease.",
+      "icon": "baby",
+      "price": null
+    },
+    {
+      "title": "Clear aligners",
+      "description": "Discreet orthodontic aligners, planned after a consultation.",
+      "icon": "smile",
+      "price": null
+    }
+  ],
+  "about": {
+    "heading": "A practice built around comfort",
+    "body": "Sample Dental Studio is a neighbourhood clinic in Indiranagar focused on preventive, unhurried care.\n\nWe explain every option before treatment begins, so you can decide what is right for you."
+  },
+  "social_proof": {
+    "rating": 4.8,
+    "review_count": 212,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000001",
+    "testimonials": []
+  },
+  "gallery": [
+    {
+      "src": "/samples/clinic/g1.svg",
+      "alt": "Treatment room",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/clinic/g2.svg",
+      "alt": "Reception area",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/clinic/g3.svg",
+      "alt": "Sterilisation area",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/clinic/g4.svg",
+      "alt": "Waiting lounge",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    }
+  ],
+  "faq": [
+    {
+      "q": "Do you accept walk-ins?",
+      "a": "Please call or message ahead so we can keep waiting times short. We will always try to see dental emergencies the same day."
+    },
+    {
+      "q": "How often should I have a check-up?",
+      "a": "Most people benefit from a check-up and cleaning every six months. Your dentist will recommend a schedule that suits you."
+    },
+    {
+      "q": "Is parking available?",
+      "a": "Street parking is available nearby."
+    }
+  ],
+  "pricing": [],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-dental-1a2b",
+    "site_id": "sample-dental-1a2b",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Real photos of the clinic (sample artwork shown)",
+    "Dentist names and qualifications",
+    "Prices for treatments other than check-ups"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

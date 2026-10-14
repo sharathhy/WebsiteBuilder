@@ -1,0 +1,187 @@
+{
+  "spec_version": "1.0",
+  "template": "legal-finance",
+  "locale": "en-IN",
+  "currency": "INR",
+  "site_url": "https://sample-associates.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample & Associates",
+    "category": "Chartered accountant",
+    "tagline": "Clear advice on tax, audit and compliance",
+    "description": "A chartered accountancy practice advising individuals and growing companies on tax, audit, GST and company compliance.",
+    "phone_e164": "+911100000000",
+    "phone_display": "+91 11 0000 0000",
+    "whatsapp_e164": null,
+    "email": "office@example.com",
+    "address": {
+      "street": "Example House, 5 Sample Marg, Connaught Place",
+      "city": "New Delhi",
+      "state": "Delhi",
+      "postal_code": "110001",
+      "country": "IN"
+    },
+    "lat": 28.6315,
+    "lng": 77.2167,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000005",
+    "hours": [
+      {
+        "day": "Monday",
+        "opens": "09:30",
+        "closes": "18:30"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "09:30",
+        "closes": "18:30"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "09:30",
+        "closes": "18:30"
+      },
+      {
+        "day": "Thursday",
+        "opens": "09:30",
+        "closes": "18:30"
+      },
+      {
+        "day": "Friday",
+        "opens": "09:30",
+        "closes": "18:30"
+      },
+      {
+        "day": "Saturday",
+        "opens": "10:00",
+        "closes": "14:00"
+      }
+    ],
+    "rating": 4.5,
+    "review_count": 64,
+    "socials": [
+      {
+        "platform": "LinkedIn",
+        "url": "https://linkedin.com/company/example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Sample & Associates — Chartered accountants in Connaught Place",
+    "description": "Tax, audit, GST and company compliance for individuals and businesses in Connaught Place, New Delhi.",
+    "primary_keyword": "chartered accountant in Connaught Place, New Delhi",
+    "keywords": [
+      "CA firm Delhi",
+      "GST filing Connaught Place"
+    ]
+  },
+  "theme": {
+    "primary": "#1e3a5f",
+    "secondary": "#8a6d3b",
+    "accent": "#c8a96a",
+    "background": "#f8f7f4",
+    "foreground": "#1a2233",
+    "mode": "light",
+    "font_heading": "Source Serif 4",
+    "font_body": "Inter",
+    "radius_px": 6
+  },
+  "hero": {
+    "headline": "Considered advice for every filing season",
+    "subheadline": "Tax, audit and compliance handled carefully, with plain-language guidance.",
+    "cta_primary": {
+      "label": "Request a consultation",
+      "href": "#contact"
+    },
+    "cta_secondary": {
+      "label": "Call the office",
+      "href": "tel:+911100000000"
+    },
+    "model": "pillar",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/legal-finance/hero.svg",
+      "alt": "Classical columns at dusk",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "about",
+    "social_proof",
+    "hours",
+    "map",
+    "faq",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Income tax",
+      "description": "Returns, planning and notices for individuals and businesses.",
+      "icon": "landmark",
+      "price": null
+    },
+    {
+      "title": "GST",
+      "description": "Registration, returns and reconciliation.",
+      "icon": "receipt",
+      "price": null
+    },
+    {
+      "title": "Statutory audit",
+      "description": "Independent audits for private companies and LLPs.",
+      "icon": "file-check",
+      "price": null
+    },
+    {
+      "title": "Company compliance",
+      "description": "ROC filings, incorporations and secretarial support.",
+      "icon": "building-2",
+      "price": null
+    }
+  ],
+  "about": {
+    "heading": "A practice that explains its work",
+    "body": "Sample & Associates advises clients across Delhi NCR. We prefer clear explanations to jargon, and we tell you what we need well before a deadline."
+  },
+  "social_proof": {
+    "rating": 4.5,
+    "review_count": 64,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000005",
+    "testimonials": []
+  },
+  "gallery": [],
+  "faq": [
+    {
+      "q": "Do you work with individuals?",
+      "a": "Yes, as well as startups, partnerships and private companies."
+    },
+    {
+      "q": "Can we meet online?",
+      "a": "Yes. Consultations can be in person at our office or by video call."
+    }
+  ],
+  "pricing": [],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-associates-9c0d",
+    "site_id": "sample-associates-9c0d",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Partner names and membership numbers",
+    "Office photos",
+    "Fee structure"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

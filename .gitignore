@@ -12,3 +12,4 @@ coverage/
 .DS_Store
 config/.targets-*.yaml
 *.tsbuildinfo
+var/

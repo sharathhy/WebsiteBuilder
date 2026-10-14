@@ -6,7 +6,7 @@ By default tests use a throwaway SQLite file. Set TEST_DATABASE_URL to a Postgre
 
 import os
 import shutil
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
 
 import pytest
@@ -21,12 +21,18 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 import leadforge.models  # noqa: F401
 from leadforge.core.config import REPO_ROOT, get_settings
+from leadforge.core.dispatch import get_dispatcher, get_optional_dispatcher
 from leadforge.core.security import hash_password
 from leadforge.db.base import Base
 from leadforge.db.session import get_db
 from leadforge.main import create_app
 from leadforge.models import User
 from leadforge.models.enums import Role
+from leadforge.pipeline.registry import load_all
+from leadforge.pipeline.runner import InlineDispatcher
+from leadforge.services.container import Services, build_services, set_services
+
+load_all()
 
 ADMIN = ("admin@example.com", "admin-password-123")
 REVIEWER = ("reviewer@example.com", "reviewer-password-123")
@@ -74,10 +80,41 @@ async def users(db: AsyncSession) -> dict[str, User]:
 
 
 @pytest.fixture
+def services(
+    tmp_path: Path, config_dir: Path, monkeypatch: pytest.MonkeyPatch
+) -> Iterator[Services]:
+    """Mock-mode service container writing into a per-test storage dir.
+
+    Browser audits are off and sites use the static builder so the suite stays fast;
+    tests that need either turn them back on.
+    """
+    settings = get_settings()
+    for key, value in {
+        "storage_dir": tmp_path / "storage",
+        "public_base_url": "http://test",
+        "browser_audits": False,
+        "site_builder": "static",
+        "mock_apis": True,
+    }.items():
+        monkeypatch.setattr(settings, key, value)
+    svc = build_services(settings)
+    set_services(svc)
+    yield svc
+    set_services(None)
+
+
+@pytest.fixture
+def inline(sessionmaker: async_sessionmaker[AsyncSession], services: Services) -> InlineDispatcher:
+    return InlineDispatcher(sessionmaker, services)
+
+
+@pytest.fixture
 async def client(
-    sessionmaker: async_sessionmaker[AsyncSession], config_dir: Path
+    sessionmaker: async_sessionmaker[AsyncSession], config_dir: Path, inline: InlineDispatcher
 ) -> AsyncIterator[httpx.AsyncClient]:
     app = create_app()
+    app.dependency_overrides[get_dispatcher] = lambda: inline
+    app.dependency_overrides[get_optional_dispatcher] = lambda: inline
 
     async def _get_db() -> AsyncIterator[AsyncSession]:
         async with sessionmaker() as session:

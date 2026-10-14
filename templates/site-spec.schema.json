@@ -1,0 +1,946 @@
+{
+  "$defs": {
+    "About": {
+      "properties": {
+        "heading": {
+          "title": "Heading",
+          "type": "string"
+        },
+        "body": {
+          "title": "Body",
+          "type": "string"
+        }
+      },
+      "required": [
+        "heading",
+        "body"
+      ],
+      "title": "About",
+      "type": "object"
+    },
+    "Address": {
+      "properties": {
+        "street": {
+          "title": "Street",
+          "type": "string"
+        },
+        "city": {
+          "title": "City",
+          "type": "string"
+        },
+        "state": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "State"
+        },
+        "postal_code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Postal Code"
+        },
+        "country": {
+          "enum": [
+            "IN",
+            "US"
+          ],
+          "title": "Country",
+          "type": "string"
+        }
+      },
+      "required": [
+        "street",
+        "city",
+        "country"
+      ],
+      "title": "Address",
+      "type": "object"
+    },
+    "Analytics": {
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "enum": [
+                "plausible",
+                "ga4"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Provider"
+        },
+        "id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Id"
+        }
+      },
+      "title": "Analytics",
+      "type": "object"
+    },
+    "BusinessInfo": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "category": {
+          "title": "Category",
+          "type": "string"
+        },
+        "tagline": {
+          "title": "Tagline",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "phone_e164": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phone E164"
+        },
+        "phone_display": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Phone Display"
+        },
+        "whatsapp_e164": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Whatsapp E164"
+        },
+        "email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Email"
+        },
+        "address": {
+          "$ref": "#/$defs/Address"
+        },
+        "lat": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lat"
+        },
+        "lng": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lng"
+        },
+        "google_maps_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Google Maps Url"
+        },
+        "hours": {
+          "items": {
+            "$ref": "#/$defs/HoursRow"
+          },
+          "title": "Hours",
+          "type": "array"
+        },
+        "rating": {
+          "anyOf": [
+            {
+              "maximum": 5,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rating"
+        },
+        "review_count": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Count"
+        },
+        "socials": {
+          "items": {
+            "$ref": "#/$defs/Social"
+          },
+          "title": "Socials",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "category",
+        "tagline",
+        "description",
+        "address"
+      ],
+      "title": "BusinessInfo",
+      "type": "object"
+    },
+    "Contact": {
+      "properties": {
+        "form_endpoint": {
+          "title": "Form Endpoint",
+          "type": "string"
+        },
+        "site_id": {
+          "title": "Site Id",
+          "type": "string"
+        },
+        "turnstile_site_key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Turnstile Site Key"
+        },
+        "booking_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Booking Url"
+        }
+      },
+      "required": [
+        "form_endpoint",
+        "site_id"
+      ],
+      "title": "Contact",
+      "type": "object"
+    },
+    "Faq": {
+      "properties": {
+        "q": {
+          "title": "Q",
+          "type": "string"
+        },
+        "a": {
+          "title": "A",
+          "type": "string"
+        }
+      },
+      "required": [
+        "q",
+        "a"
+      ],
+      "title": "Faq",
+      "type": "object"
+    },
+    "Hero": {
+      "properties": {
+        "headline": {
+          "title": "Headline",
+          "type": "string"
+        },
+        "subheadline": {
+          "title": "Subheadline",
+          "type": "string"
+        },
+        "cta_primary": {
+          "$ref": "#/$defs/Link"
+        },
+        "cta_secondary": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Link"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "model": {
+          "default": "orb",
+          "enum": [
+            "tooth",
+            "plate",
+            "droplet",
+            "dumbbell",
+            "pillar",
+            "house",
+            "wrench",
+            "orb"
+          ],
+          "title": "Model",
+          "type": "string"
+        },
+        "enable_3d": {
+          "default": true,
+          "title": "Enable 3D",
+          "type": "boolean"
+        },
+        "video": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VideoAsset"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "fallback_image": {
+          "$ref": "#/$defs/ImageAsset"
+        }
+      },
+      "required": [
+        "headline",
+        "subheadline",
+        "cta_primary",
+        "fallback_image"
+      ],
+      "title": "Hero",
+      "type": "object"
+    },
+    "HoursRow": {
+      "properties": {
+        "day": {
+          "enum": [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday"
+          ],
+          "title": "Day",
+          "type": "string"
+        },
+        "opens": {
+          "pattern": "^\\d{2}:\\d{2}$",
+          "title": "Opens",
+          "type": "string"
+        },
+        "closes": {
+          "pattern": "^\\d{2}:\\d{2}$",
+          "title": "Closes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "day",
+        "opens",
+        "closes"
+      ],
+      "title": "HoursRow",
+      "type": "object"
+    },
+    "ImageAsset": {
+      "properties": {
+        "src": {
+          "title": "Src",
+          "type": "string"
+        },
+        "alt": {
+          "title": "Alt",
+          "type": "string"
+        },
+        "credit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Credit"
+        },
+        "credit_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Credit Url"
+        }
+      },
+      "required": [
+        "src",
+        "alt"
+      ],
+      "title": "ImageAsset",
+      "type": "object"
+    },
+    "Link": {
+      "properties": {
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "href": {
+          "title": "Href",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "href"
+      ],
+      "title": "Link",
+      "type": "object"
+    },
+    "PricingTier": {
+      "properties": {
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "price": {
+          "title": "Price",
+          "type": "string"
+        },
+        "features": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Features",
+          "type": "array"
+        }
+      },
+      "required": [
+        "name",
+        "price",
+        "features"
+      ],
+      "title": "PricingTier",
+      "type": "object"
+    },
+    "Seo": {
+      "properties": {
+        "title": {
+          "maxLength": 70,
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "maxLength": 170,
+          "title": "Description",
+          "type": "string"
+        },
+        "primary_keyword": {
+          "title": "Primary Keyword",
+          "type": "string"
+        },
+        "keywords": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Keywords",
+          "type": "array"
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "primary_keyword"
+      ],
+      "title": "Seo",
+      "type": "object"
+    },
+    "Service": {
+      "properties": {
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "icon": {
+          "default": "sparkles",
+          "title": "Icon",
+          "type": "string"
+        },
+        "price": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Price"
+        }
+      },
+      "required": [
+        "title",
+        "description"
+      ],
+      "title": "Service",
+      "type": "object"
+    },
+    "Social": {
+      "properties": {
+        "platform": {
+          "title": "Platform",
+          "type": "string"
+        },
+        "url": {
+          "format": "uri",
+          "maxLength": 2083,
+          "minLength": 1,
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "platform",
+        "url"
+      ],
+      "title": "Social",
+      "type": "object"
+    },
+    "SocialProof": {
+      "properties": {
+        "rating": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rating"
+        },
+        "review_count": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Review Count"
+        },
+        "source": {
+          "default": "Google",
+          "title": "Source",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        },
+        "testimonials": {
+          "items": {
+            "$ref": "#/$defs/Testimonial"
+          },
+          "title": "Testimonials",
+          "type": "array"
+        }
+      },
+      "title": "SocialProof",
+      "type": "object"
+    },
+    "Testimonial": {
+      "description": "Only real, attributable reviews the business has permission to show.",
+      "properties": {
+        "quote": {
+          "title": "Quote",
+          "type": "string"
+        },
+        "author": {
+          "title": "Author",
+          "type": "string"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "source_url": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Url"
+        }
+      },
+      "required": [
+        "quote",
+        "author",
+        "source"
+      ],
+      "title": "Testimonial",
+      "type": "object"
+    },
+    "Theme": {
+      "properties": {
+        "primary": {
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Primary",
+          "type": "string"
+        },
+        "secondary": {
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Secondary",
+          "type": "string"
+        },
+        "accent": {
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Accent",
+          "type": "string"
+        },
+        "background": {
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Background",
+          "type": "string"
+        },
+        "foreground": {
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Foreground",
+          "type": "string"
+        },
+        "mode": {
+          "default": "light",
+          "enum": [
+            "light",
+            "dark"
+          ],
+          "title": "Mode",
+          "type": "string"
+        },
+        "font_heading": {
+          "default": "Inter",
+          "title": "Font Heading",
+          "type": "string"
+        },
+        "font_body": {
+          "default": "Inter",
+          "title": "Font Body",
+          "type": "string"
+        },
+        "radius_px": {
+          "default": 16,
+          "maximum": 40,
+          "minimum": 0,
+          "title": "Radius Px",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "primary",
+        "secondary",
+        "accent",
+        "background",
+        "foreground"
+      ],
+      "title": "Theme",
+      "type": "object"
+    },
+    "VideoAsset": {
+      "properties": {
+        "webm": {
+          "title": "Webm",
+          "type": "string"
+        },
+        "mp4": {
+          "title": "Mp4",
+          "type": "string"
+        },
+        "poster": {
+          "title": "Poster",
+          "type": "string"
+        }
+      },
+      "required": [
+        "webm",
+        "mp4",
+        "poster"
+      ],
+      "title": "VideoAsset",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "spec_version": {
+      "default": "1.0",
+      "title": "Spec Version",
+      "type": "string"
+    },
+    "template": {
+      "enum": [
+        "restaurant",
+        "clinic",
+        "salon",
+        "fitness",
+        "legal-finance",
+        "real-estate",
+        "home-services",
+        "generic-premium"
+      ],
+      "title": "Template",
+      "type": "string"
+    },
+    "locale": {
+      "enum": [
+        "en-IN",
+        "en-US"
+      ],
+      "title": "Locale",
+      "type": "string"
+    },
+    "currency": {
+      "enum": [
+        "INR",
+        "USD"
+      ],
+      "title": "Currency",
+      "type": "string"
+    },
+    "site_url": {
+      "title": "Site Url",
+      "type": "string"
+    },
+    "noindex": {
+      "default": true,
+      "title": "Noindex",
+      "type": "boolean"
+    },
+    "business": {
+      "$ref": "#/$defs/BusinessInfo"
+    },
+    "seo": {
+      "$ref": "#/$defs/Seo"
+    },
+    "theme": {
+      "$ref": "#/$defs/Theme"
+    },
+    "hero": {
+      "$ref": "#/$defs/Hero"
+    },
+    "sections": {
+      "items": {
+        "enum": [
+          "services",
+          "about",
+          "social_proof",
+          "gallery",
+          "hours",
+          "map",
+          "faq",
+          "pricing",
+          "contact"
+        ],
+        "type": "string"
+      },
+      "title": "Sections",
+      "type": "array"
+    },
+    "services": {
+      "items": {
+        "$ref": "#/$defs/Service"
+      },
+      "title": "Services",
+      "type": "array"
+    },
+    "about": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/About"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "social_proof": {
+      "$ref": "#/$defs/SocialProof",
+      "default": {
+        "rating": null,
+        "review_count": null,
+        "source": "Google",
+        "source_url": null,
+        "testimonials": []
+      }
+    },
+    "gallery": {
+      "items": {
+        "$ref": "#/$defs/ImageAsset"
+      },
+      "title": "Gallery",
+      "type": "array"
+    },
+    "faq": {
+      "items": {
+        "$ref": "#/$defs/Faq"
+      },
+      "title": "Faq",
+      "type": "array"
+    },
+    "pricing": {
+      "items": {
+        "$ref": "#/$defs/PricingTier"
+      },
+      "title": "Pricing",
+      "type": "array"
+    },
+    "contact": {
+      "$ref": "#/$defs/Contact"
+    },
+    "analytics": {
+      "$ref": "#/$defs/Analytics",
+      "default": {
+        "enabled": false,
+        "provider": null,
+        "id": null
+      }
+    },
+    "placeholders": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Placeholders",
+      "type": "array"
+    },
+    "attribution": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Attribution",
+      "type": "array"
+    }
+  },
+  "required": [
+    "template",
+    "locale",
+    "currency",
+    "site_url",
+    "business",
+    "seo",
+    "theme",
+    "hero",
+    "sections",
+    "contact"
+  ],
+  "title": "SiteSpec",
+  "type": "object"
+}

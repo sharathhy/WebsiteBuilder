@@ -49,7 +49,18 @@ class Business(UUIDPk, Timestamps, Base):
     duplicate_of_id: Mapped[uuid.UUID | None] = mapped_column(
         ForeignKey("businesses.id", ondelete="SET NULL")
     )
+    primary_type: Mapped[str | None] = mapped_column(String(100))
+    # Denormalized for the leads table: best public email, or "not_found" with when we looked.
+    primary_email: Mapped[str | None] = mapped_column(String(320))
+    email_status: Mapped[str] = mapped_column(
+        String(20), default="pending", server_default="pending"
+    )  # found|not_found
+    email_confidence: Mapped[float | None] = mapped_column(Float)
+    email_source_url: Mapped[str | None] = mapped_column(String(2048))
+    latest_score: Mapped[int | None] = mapped_column(Integer, index=True)
+    latest_grade: Mapped[str | None] = mapped_column(String(2))
     places_fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    audited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     enriched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     # Raw Places payload, kept within Google's caching terms and refreshed periodically.
     places_raw: Mapped[dict[str, Any] | None] = mapped_column()

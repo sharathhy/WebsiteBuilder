@@ -1,0 +1,207 @@
+{
+  "spec_version": "1.0",
+  "template": "real-estate",
+  "locale": "en-US",
+  "currency": "USD",
+  "site_url": "https://sample-realty.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample Realty Group",
+    "category": "Real estate agency",
+    "tagline": "Homes in Austin's best neighborhoods",
+    "description": "An independent real estate team helping buyers and sellers across central Austin.",
+    "phone_e164": "+15125550102",
+    "phone_display": "(512) 555-0102",
+    "whatsapp_e164": null,
+    "email": "homes@example.com",
+    "address": {
+      "street": "800 Example Blvd, Floor 2",
+      "city": "Austin",
+      "state": "TX",
+      "postal_code": "78701",
+      "country": "US"
+    },
+    "lat": 30.2685,
+    "lng": -97.7452,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000006",
+    "hours": [
+      {
+        "day": "Monday",
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Thursday",
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Friday",
+        "opens": "09:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Saturday",
+        "opens": "10:00",
+        "closes": "16:00"
+      }
+    ],
+    "rating": 4.9,
+    "review_count": 87,
+    "socials": [
+      {
+        "platform": "Instagram",
+        "url": "https://instagram.com/example"
+      },
+      {
+        "platform": "Facebook",
+        "url": "https://facebook.com/example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Sample Realty Group — Real estate agents in Downtown Austin",
+    "description": "Buy or sell a home in central Austin with an independent local team.",
+    "primary_keyword": "real estate agency in Downtown, Austin",
+    "keywords": [
+      "Austin realtor",
+      "homes for sale Austin"
+    ]
+  },
+  "theme": {
+    "primary": "#2f4f4f",
+    "secondary": "#b08d57",
+    "accent": "#d9c5a0",
+    "background": "#f5f3ef",
+    "foreground": "#1c1c1c",
+    "mode": "light",
+    "font_heading": "DM Sans",
+    "font_body": "DM Sans",
+    "radius_px": 12
+  },
+  "hero": {
+    "headline": "Find the place you'll call home",
+    "subheadline": "Local agents for buying, selling and relocating in central Austin.",
+    "cta_primary": {
+      "label": "Talk to an agent",
+      "href": "#contact"
+    },
+    "cta_secondary": {
+      "label": "How we help",
+      "href": "#services"
+    },
+    "model": "house",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/real-estate/hero.svg",
+      "alt": "Modern home with lit windows at sunset",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "about",
+    "gallery",
+    "social_proof",
+    "hours",
+    "map",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Buying",
+      "description": "Neighborhood guidance, tours and negotiation.",
+      "icon": "key-round",
+      "price": null
+    },
+    {
+      "title": "Selling",
+      "description": "Pricing, staging advice and marketing.",
+      "icon": "house",
+      "price": null
+    },
+    {
+      "title": "Relocation",
+      "description": "Support for families moving to Austin.",
+      "icon": "map",
+      "price": null
+    },
+    {
+      "title": "Investment",
+      "description": "Help evaluating rental and multi-family properties.",
+      "icon": "trending-up",
+      "price": null
+    }
+  ],
+  "about": {
+    "heading": "Independent and local",
+    "body": "Sample Realty Group is a small team of Austin agents. We focus on fewer clients so each one gets our full attention."
+  },
+  "social_proof": {
+    "rating": 4.9,
+    "review_count": 87,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000006",
+    "testimonials": []
+  },
+  "gallery": [
+    {
+      "src": "/samples/real-estate/g1.svg",
+      "alt": "Modern exterior",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/real-estate/g2.svg",
+      "alt": "Evening view",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/real-estate/g3.svg",
+      "alt": "Garden façade",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/real-estate/g4.svg",
+      "alt": "Street view",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    }
+  ],
+  "faq": [],
+  "pricing": [],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-realty-1e2f",
+    "site_id": "sample-realty-1e2f",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Current listings",
+    "Agent headshots and license numbers",
+    "Property photos (sample artwork shown)"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

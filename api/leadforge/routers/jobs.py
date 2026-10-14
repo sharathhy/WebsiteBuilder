@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException, Query, Request, status
 from sqlalchemy import select
 
 from leadforge.core.deps import AdminUser, CurrentUser, DbSession
+from leadforge.core.dispatch import JobDispatcher
 from leadforge.models import Job
 from leadforge.models.enums import JobQueue, JobStatus
 from leadforge.schemas.jobs import JobOut
@@ -38,4 +39,20 @@ async def ping(request: Request, _: AdminUser, db: DbSession) -> Job:
     if redis is None:
         raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Queue unavailable")
     await dispatch(redis, job)
+    return job
+
+
+@router.post("/{job_id}/retry", response_model=JobOut, status_code=status.HTTP_202_ACCEPTED)
+async def retry(job_id: uuid.UUID, _: AdminUser, db: DbSession, dispatcher: JobDispatcher) -> Job:
+    """Re-run a dead-lettered job (after fixing whatever made it fail)."""
+    job = await db.get(Job, job_id)
+    if job is None:
+        raise HTTPException(404, "Job not found")
+    if job.status != JobStatus.DEAD:
+        raise HTTPException(409, "Only dead jobs can be retried")
+    job.status = JobStatus.QUEUED
+    job.attempts = 0
+    job.error = None
+    await db.commit()
+    await dispatcher.dispatch(job)
     return job

@@ -16,7 +16,20 @@ from slowapi.middleware import SlowAPIMiddleware
 from leadforge.core.config import get_settings
 from leadforge.core.logging import configure_logging
 from leadforge.core.ratelimit import limiter
-from leadforge.routers import auth, health, jobs, targets, users
+from leadforge.routers import (
+    analytics,
+    auth,
+    campaigns,
+    drafts,
+    health,
+    jobs,
+    leads,
+    public,
+    suppression,
+    targets,
+    users,
+    webhooks,
+)
 
 log = logging.getLogger("leadforge.api")
 
@@ -60,8 +73,20 @@ def create_app() -> FastAPI:
         allow_headers=["Authorization", "Content-Type"],
     )
     app.include_router(health.router)
-    for router in (auth.router, users.router, targets.router, jobs.router):
+    for router in (
+        auth.router,
+        users.router,
+        targets.router,
+        jobs.router,
+        campaigns.router,
+        leads.router,
+        drafts.router,
+        analytics.router,
+        suppression.router,
+        webhooks.router,
+    ):
         app.include_router(router, prefix="/api")
+    app.include_router(public.router)
     return app
 
 

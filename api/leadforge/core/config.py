@@ -31,6 +31,31 @@ class Settings(BaseSettings):
     mock_apis: bool = True
 
     config_dir: Path = REPO_ROOT / "config"
+    # Local object storage for screenshots and mock preview deploys (R2/S3 in production).
+    storage_dir: Path = REPO_ROOT / "var" / "storage"
+    # Public base URL of this API, used in preview links, unsubscribe links and form endpoints.
+    public_base_url: str = "http://localhost:8000"
+    dashboard_url: str = "http://localhost:5173"
+
+    # Run headless Chromium during audits (screenshots, overflow, axe-core).
+    browser_audits: bool = True
+
+    # How generated sites are built: "next" (templates/site, needs Node), "static"
+    # (built-in Python renderer, no motion/3D), or "auto" (next when available).
+    site_builder: Literal["auto", "next", "static"] = "auto"
+    templates_dir: Path = REPO_ROOT / "templates"
+    turnstile_site_key: str | None = None
+
+    # Crawler etiquette
+    crawler_user_agent: str = "LeadForgeBot/0.1 (+https://leadforge.example/bot)"
+    crawler_max_pages: int = 10
+    crawler_timeout_s: float = 15.0
+    crawler_min_delay_s: float = 1.0
+    crawler_max_bytes: int = 3_000_000
+
+    # Outreach
+    email_daily_limit: int = 40
+    preview_ttl_days: int = 30
 
     sentry_dsn: SecretStr | None = None
 
@@ -40,6 +65,12 @@ class Settings(BaseSettings):
     anthropic_api_key: SecretStr | None = None
     vercel_token: SecretStr | None = None
     resend_api_key: SecretStr | None = None
+    resend_webhook_secret: SecretStr | None = None
+    turnstile_secret_key: SecretStr | None = None
+    unsplash_access_key: SecretStr | None = None
+    higgsfield_api_key: SecretStr | None = None
+    llm_model: str = "claude-opus-5-5"
+    llm_effort: str = "medium"
 
     @field_validator("cors_origins", mode="before")
     @classmethod

@@ -1,0 +1,237 @@
+{
+  "spec_version": "1.0",
+  "template": "salon",
+  "locale": "en-US",
+  "currency": "USD",
+  "site_url": "https://sample-salon.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample Salon & Spa",
+    "category": "Beauty salon",
+    "tagline": "Hair, skin and quiet hours",
+    "description": "A light-filled salon and spa offering cuts, colour, facials and massage in South Congress, Austin.",
+    "phone_e164": "+15125550100",
+    "phone_display": "(512) 555-0100",
+    "whatsapp_e164": null,
+    "email": "studio@example.com",
+    "address": {
+      "street": "1200 Example Ave, Suite 4",
+      "city": "Austin",
+      "state": "TX",
+      "postal_code": "78704",
+      "country": "US"
+    },
+    "lat": 30.2475,
+    "lng": -97.7501,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000003",
+    "hours": [
+      {
+        "day": "Tuesday",
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      {
+        "day": "Thursday",
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      {
+        "day": "Friday",
+        "opens": "09:00",
+        "closes": "19:00"
+      },
+      {
+        "day": "Saturday",
+        "opens": "09:00",
+        "closes": "17:00"
+      }
+    ],
+    "rating": 4.9,
+    "review_count": 356,
+    "socials": [
+      {
+        "platform": "Instagram",
+        "url": "https://instagram.com/example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Sample Salon & Spa — Hair salon in South Congress, Austin",
+    "description": "Cuts, colour, facials and massage in South Congress, Austin. Book online or call (512) 555-0100.",
+    "primary_keyword": "hair salon in South Congress, Austin",
+    "keywords": [
+      "spa Austin",
+      "balayage Austin"
+    ]
+  },
+  "theme": {
+    "primary": "#9d4c5f",
+    "secondary": "#c9a27e",
+    "accent": "#e7c6c0",
+    "background": "#fbf6f3",
+    "foreground": "#2b1d1f",
+    "mode": "light",
+    "font_heading": "Playfair Display",
+    "font_body": "Manrope",
+    "radius_px": 24
+  },
+  "hero": {
+    "headline": "Unhurried care for hair and skin",
+    "subheadline": "Cuts, colour and spa rituals in a calm, light-filled studio.",
+    "cta_primary": {
+      "label": "Book an appointment",
+      "href": "https://booking.example.com/sample-salon"
+    },
+    "cta_secondary": {
+      "label": "Explore rituals",
+      "href": "#services"
+    },
+    "model": "droplet",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/salon/hero.svg",
+      "alt": "Arched mirrors in a softly lit salon",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "about",
+    "social_proof",
+    "gallery",
+    "pricing",
+    "hours",
+    "map",
+    "faq",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Cut & style",
+      "description": "A consultation, wash, precision cut and finish.",
+      "icon": "scissors",
+      "price": "85"
+    },
+    {
+      "title": "Colour & balayage",
+      "description": "Hand-painted colour tailored to your tone.",
+      "icon": "palette",
+      "price": "From 180"
+    },
+    {
+      "title": "Signature facial",
+      "description": "Cleanse, exfoliation, massage and mask.",
+      "icon": "sparkles",
+      "price": "120"
+    },
+    {
+      "title": "Massage",
+      "description": "Relaxing full-body massage, 60 or 90 minutes.",
+      "icon": "flower-2",
+      "price": null
+    }
+  ],
+  "about": {
+    "heading": "A studio made for slowing down",
+    "body": "Sample Salon & Spa is an independent studio in South Congress. Every appointment starts with a conversation, and nothing is rushed."
+  },
+  "social_proof": {
+    "rating": 4.9,
+    "review_count": 356,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000003",
+    "testimonials": []
+  },
+  "gallery": [
+    {
+      "src": "/samples/salon/g1.svg",
+      "alt": "Styling stations",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/salon/g2.svg",
+      "alt": "Treatment room",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/salon/g3.svg",
+      "alt": "Product shelf",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/salon/g4.svg",
+      "alt": "Reception",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    }
+  ],
+  "faq": [
+    {
+      "q": "How do I book?",
+      "a": "Use the online booking link, call us, or send a message below."
+    },
+    {
+      "q": "What is your cancellation policy?",
+      "a": "Please give us 24 hours' notice if you need to reschedule."
+    }
+  ],
+  "pricing": [
+    {
+      "name": "Cut & style",
+      "price": "85",
+      "features": [
+        "Consultation",
+        "Wash & blow-dry",
+        "Precision cut"
+      ]
+    },
+    {
+      "name": "Colour",
+      "price": "From 180",
+      "features": [
+        "Tone consultation",
+        "Hand-painted balayage",
+        "Gloss & finish"
+      ]
+    },
+    {
+      "name": "Spa ritual",
+      "price": "220",
+      "features": [
+        "Signature facial",
+        "60-minute massage",
+        "Tea service"
+      ]
+    }
+  ],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-salon-5e6f",
+    "site_id": "sample-salon-5e6f",
+    "turnstile_site_key": null,
+    "booking_url": "https://booking.example.com/sample-salon"
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Studio photos (sample artwork shown)",
+    "Stylist names and bios",
+    "Massage pricing"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

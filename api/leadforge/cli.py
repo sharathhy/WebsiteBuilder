@@ -59,12 +59,58 @@ async def seed() -> None:
         await db.commit()
 
 
+async def demo(cities: list[str], categories: list[str], max_results: int) -> None:
+    """Run the whole pipeline in-process on mocked APIs and print a summary."""
+    from collections import Counter
+
+    from sqlalchemy import func
+
+    from leadforge.models import Business, EmailDraft, GeneratedSite
+    from leadforge.pipeline.registry import load_all
+    from leadforge.pipeline.runner import InlineDispatcher
+    from leadforge.services.campaigns import start_campaign
+    from leadforge.services.container import get_services
+
+    load_all()
+    services = get_services()
+    sm = get_sessionmaker()
+    dispatcher = InlineDispatcher(sm, services)
+    async with sm() as db:
+        campaign = Campaign(
+            name=f"CLI demo: {', '.join(categories)} in {', '.join(cities)}",
+            cities=cities,
+            categories=categories,
+            max_results_per_target=max_results,
+        )
+        db.add(campaign)
+        await db.commit()
+        await start_campaign(db, campaign, load_targets(), dispatcher)
+    ran = await dispatcher.drain()
+    async with sm() as db:
+        biz = list(await db.scalars(select(Business).where(Business.duplicate_of_id.is_(None))))
+        grades = Counter(b.latest_grade for b in biz)
+        sites = Counter(s.status.value for s in await db.scalars(select(GeneratedSite)))
+        drafts = await db.scalar(select(func.count()).select_from(EmailDraft))
+    print(f"jobs run: {ran}")
+    print(f"businesses: {len(biz)}  with email: {sum(1 for b in biz if b.primary_email)}")
+    print(f"grades: {dict(grades)}")
+    print(f"generated sites: {dict(sites)}")
+    print(f"outreach drafts awaiting approval: {drafts}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="leadforge")
-    parser.add_argument("command", choices=["seed"])
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("seed")
+    d = sub.add_parser("demo", help="run the full pipeline in-process on mocked APIs")
+    d.add_argument("--cities", default="bengaluru,austin")
+    d.add_argument("--categories", default="dentists")
+    d.add_argument("--max-results", type=int, default=30)
     args = parser.parse_args()
     if args.command == "seed":
         asyncio.run(seed())
+    elif args.command == "demo":
+        asyncio.run(demo(args.cities.split(","), args.categories.split(","), args.max_results))
 
 
 if __name__ == "__main__":

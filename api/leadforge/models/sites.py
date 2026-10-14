@@ -33,3 +33,20 @@ class GeneratedSite(UUIDPk, Timestamps, Base):
     custom_domain: Mapped[str | None] = mapped_column(String(255))
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     failure_reason: Mapped[str | None] = mapped_column(Text)
+
+
+class FormSubmission(UUIDPk, Timestamps, Base):
+    """A contact-form message from a generated site. While the site is only a preview the
+    message is stored, never forwarded, so we don't email the business uninvited."""
+
+    __tablename__ = "form_submissions"
+
+    generated_site_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("generated_sites.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(200))
+    email: Mapped[str | None] = mapped_column(String(320))
+    phone: Mapped[str | None] = mapped_column(String(40))
+    message: Mapped[str] = mapped_column(Text)
+    ip_hash: Mapped[str | None] = mapped_column(String(64))
+    forwarded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

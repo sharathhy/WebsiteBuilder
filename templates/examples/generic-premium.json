@@ -1,0 +1,201 @@
+{
+  "spec_version": "1.0",
+  "template": "generic-premium",
+  "locale": "en-US",
+  "currency": "USD",
+  "site_url": "https://sample-studio.example.com",
+  "noindex": true,
+  "business": {
+    "name": "Sample Events Studio",
+    "category": "Wedding planner",
+    "tagline": "Celebrations planned with care",
+    "description": "Full-service wedding and event planning for couples in the Austin area, from first ideas to the last dance.",
+    "phone_e164": "+15125550103",
+    "phone_display": "(512) 555-0103",
+    "whatsapp_e164": null,
+    "email": "plan@example.com",
+    "address": {
+      "street": "300 Example Rd",
+      "city": "Austin",
+      "state": "TX",
+      "postal_code": "78703",
+      "country": "US"
+    },
+    "lat": 30.2849,
+    "lng": -97.7706,
+    "google_maps_url": "https://maps.google.com/?cid=0000000000000000008",
+    "hours": [
+      {
+        "day": "Monday",
+        "opens": "10:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Tuesday",
+        "opens": "10:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Wednesday",
+        "opens": "10:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Thursday",
+        "opens": "10:00",
+        "closes": "18:00"
+      },
+      {
+        "day": "Friday",
+        "opens": "10:00",
+        "closes": "18:00"
+      }
+    ],
+    "rating": 5.0,
+    "review_count": 41,
+    "socials": [
+      {
+        "platform": "Instagram",
+        "url": "https://instagram.com/example"
+      },
+      {
+        "platform": "Pinterest",
+        "url": "https://pinterest.com/example"
+      }
+    ]
+  },
+  "seo": {
+    "title": "Sample Events Studio — Wedding planner in Austin",
+    "description": "Full-service wedding and event planning in Austin, TX.",
+    "primary_keyword": "wedding planner in Austin",
+    "keywords": [
+      "Austin wedding planner",
+      "event planning Austin"
+    ]
+  },
+  "theme": {
+    "primary": "#7c5cff",
+    "secondary": "#22d3ee",
+    "accent": "#f472b6",
+    "background": "#0a0a12",
+    "foreground": "#ecebff",
+    "mode": "dark",
+    "font_heading": "Outfit",
+    "font_body": "Inter",
+    "radius_px": 18
+  },
+  "hero": {
+    "headline": "Celebrations that feel like you",
+    "subheadline": "Planning, design and day-of coordination for weddings and private events.",
+    "cta_primary": {
+      "label": "Plan your event",
+      "href": "#contact"
+    },
+    "cta_secondary": {
+      "label": "What we do",
+      "href": "#services"
+    },
+    "model": "orb",
+    "enable_3d": true,
+    "video": null,
+    "fallback_image": {
+      "src": "/samples/generic-premium/hero.svg",
+      "alt": "Abstract glowing shapes",
+      "credit": "Sample artwork",
+      "credit_url": "https://example.com/sample-art"
+    }
+  },
+  "sections": [
+    "services",
+    "about",
+    "social_proof",
+    "gallery",
+    "faq",
+    "hours",
+    "contact"
+  ],
+  "services": [
+    {
+      "title": "Full planning",
+      "description": "From budget and venue to every last detail.",
+      "icon": "calendar-heart",
+      "price": null
+    },
+    {
+      "title": "Design & styling",
+      "description": "A cohesive look, from florals to lighting.",
+      "icon": "palette",
+      "price": null
+    },
+    {
+      "title": "Day-of coordination",
+      "description": "We run the day so you can enjoy it.",
+      "icon": "clipboard-check",
+      "price": null
+    }
+  ],
+  "about": {
+    "heading": "Small team, full attention",
+    "body": "We take on a limited number of events each season so that every couple works directly with a lead planner."
+  },
+  "social_proof": {
+    "rating": 5.0,
+    "review_count": 41,
+    "source": "Google",
+    "source_url": "https://maps.google.com/?cid=0000000000000000008",
+    "testimonials": []
+  },
+  "gallery": [
+    {
+      "src": "/samples/generic-premium/g1.svg",
+      "alt": "Lighting design",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/generic-premium/g2.svg",
+      "alt": "Reception styling",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/generic-premium/g3.svg",
+      "alt": "Table details",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    },
+    {
+      "src": "/samples/generic-premium/g4.svg",
+      "alt": "Evening ambience",
+      "credit": "Sample artwork — replace with owner photos",
+      "credit_url": "https://example.com/sample-art"
+    }
+  ],
+  "faq": [
+    {
+      "q": "How far ahead should we book?",
+      "a": "Most couples contact us 9–12 months before their date, but get in touch whatever your timeline."
+    }
+  ],
+  "pricing": [],
+  "contact": {
+    "form_endpoint": "https://api.example.com/api/public/forms/sample-events-5c6d",
+    "site_id": "sample-events-5c6d",
+    "turnstile_site_key": null,
+    "booking_url": null
+  },
+  "analytics": {
+    "enabled": false,
+    "provider": null,
+    "id": null
+  },
+  "placeholders": [
+    "Event photos (sample artwork shown)",
+    "Planner bios",
+    "Package pricing"
+  ],
+  "attribution": [
+    "Business details from public Google Business Profile data",
+    "Site preview generated by LeadForge"
+  ]
+}

@@ -5,7 +5,7 @@ from leadforge.models.businesses import Business, Contact, Website
 from leadforge.models.campaigns import Campaign, campaign_businesses
 from leadforge.models.ops import ApiUsage, Job
 from leadforge.models.outreach import EmailDraft, EmailEvent, SuppressionEntry
-from leadforge.models.sites import GeneratedSite
+from leadforge.models.sites import FormSubmission, GeneratedSite
 from leadforge.models.users import User
 
 __all__ = [
@@ -16,6 +16,7 @@ __all__ = [
     "Contact",
     "EmailDraft",
     "EmailEvent",
+    "FormSubmission",
     "GeneratedSite",
     "Job",
     "Screenshot",
