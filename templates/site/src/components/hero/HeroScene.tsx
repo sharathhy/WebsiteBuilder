@@ -421,3 +421,121 @@ export default function HeroScene({
     </Canvas>
   );
 }
+
+/* ---------------------------------------------------------------- scroll showcase */
+
+/** A drifting shell of points: cheap depth cue (one draw call). */
+function Particles({ color, count = 520 }: { color: string; count?: number }) {
+  const geo = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    // Deterministic layout (no Math.random) so every build renders the same scene.
+    for (let i = 0; i < count; i++) {
+      const t = i / count;
+      const phi = Math.acos(1 - 2 * t);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      const r = 2.6 + ((i * 7919) % 100) / 60;
+      pos[i * 3] = r * Math.sin(phi) * Math.cos(theta);
+      pos[i * 3 + 1] = r * Math.cos(phi) * 0.8;
+      pos[i * 3 + 2] = r * Math.sin(phi) * Math.sin(theta);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    return g;
+  }, [count]);
+  return (
+    <points geometry={geo}>
+      <pointsMaterial color={color} size={0.035} sizeAttenuation transparent opacity={0.75} depthWrite={false} />
+    </points>
+  );
+}
+
+/**
+ * Scroll-driven camera move around the template's model: `progress.current` (0..1, written
+ * by the page's scroll position) turns the model, dollies the camera in and out, tilts the
+ * orbit rings and spins the particle shell. Damped, so a fast scroll still moves smoothly.
+ */
+function ScrollRig({ progress, colors, children }: { progress: { current: number }; colors: SceneColors; children: ReactNode }) {
+  const model = useRef<THREE.Group>(null);
+  const rings = useRef<THREE.Group>(null);
+  const dust = useRef<THREE.Group>(null);
+  const s = useRef(0);
+  useFrame((state, delta) => {
+    s.current = THREE.MathUtils.damp(s.current, progress.current, 4, delta);
+    const p = s.current;
+    const arc = Math.sin(p * Math.PI);
+    const t = state.clock.elapsedTime;
+    if (model.current) {
+      model.current.rotation.y = p * Math.PI * 2.2 + t * 0.08;
+      model.current.rotation.x = arc * 0.45 - state.pointer.y * 0.15;
+      model.current.position.y = Math.sin(t * 0.9) * 0.06 - arc * 0.1;
+      model.current.scale.setScalar(0.88 + arc * 0.1);
+    }
+    if (rings.current) {
+      rings.current.rotation.x = Math.PI / 2.4 + p * 1.6;
+      rings.current.rotation.z = p * 2.4 + t * 0.05;
+      rings.current.scale.setScalar(1 + arc * 0.12);
+    }
+    if (dust.current) dust.current.rotation.y = p * 1.4 + t * 0.02;
+    const cam = state.camera;
+    cam.position.z = THREE.MathUtils.damp(cam.position.z, 8 - arc * 1.2, 4, delta);
+    cam.position.x = THREE.MathUtils.damp(cam.position.x, Math.sin(p * Math.PI * 2) * 1.1 + state.pointer.x * 0.25, 4, delta);
+    cam.position.y = THREE.MathUtils.damp(cam.position.y, 0.3 + Math.cos(p * Math.PI) * 0.6, 4, delta);
+    cam.lookAt(0, 0, 0);
+  });
+  return (
+    <>
+      <group ref={dust}>
+        <Particles color={colors.accent} />
+      </group>
+      <group ref={rings}>
+        <mesh>
+          <torusGeometry args={[1.8, 0.012, 12, 180]} />
+          <meshStandardMaterial color={colors.accent} emissive={colors.accent} emissiveIntensity={1} />
+        </mesh>
+        <mesh rotation={[0.9, 0.4, 0]}>
+          <torusGeometry args={[2.1, 0.008, 12, 180]} />
+          <meshStandardMaterial color={colors.primary} emissive={colors.primary} emissiveIntensity={0.8} />
+        </mesh>
+      </group>
+      <group ref={model}>{children}</group>
+    </>
+  );
+}
+
+export function ShowcaseScene({
+  model,
+  colors,
+  active,
+  progress,
+  onReady,
+}: {
+  model: HeroModel;
+  colors: SceneColors;
+  active: boolean;
+  progress: { current: number };
+  onReady: () => void;
+}) {
+  const Model = MODELS[model] ?? Orb;
+  return (
+    <Canvas
+      dpr={[1, 1.5]}
+      frameloop={active ? "always" : "never"}
+      gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+      camera={{ position: [0, 0.3, 8], fov: 34 }}
+      style={{ width: "100%", height: "100%" }}
+    >
+      <ambientLight intensity={colors.dark ? 0.35 : 0.55} />
+      <directionalLight position={[3, 4, 5]} intensity={1.6} />
+      <directionalLight position={[-4, -2, -3]} intensity={0.7} color={colors.secondary} />
+      <Environment resolution={256} frames={1}>
+        <Lightformer form="rect" intensity={2.2} position={[0, 4, 3]} scale={[8, 2, 1]} />
+        <Lightformer form="rect" intensity={1.4} position={[-5, 1, 1]} rotation-y={Math.PI / 2} scale={[6, 2, 1]} color={colors.primary} />
+        <Lightformer form="rect" intensity={1.1} position={[5, -1, 1]} rotation-y={-Math.PI / 2} scale={[6, 2, 1]} color={colors.accent} />
+      </Environment>
+      <ScrollRig progress={progress} colors={colors}>
+        <Model c={colors} />
+      </ScrollRig>
+      <ReadySignal onReady={onReady} />
+    </Canvas>
+  );
+}

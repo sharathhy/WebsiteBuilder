@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { onIdle } from "@/lib/idle";
 import type { HeroModel } from "@/lib/types";
 
@@ -20,7 +20,7 @@ export interface SceneColors {
  * typical of headless CI, VMs and blocklisted GPUs) would burn the main thread, so they get
  * the fallback image instead. Data-saver and very low-memory devices are skipped too.
  */
-function canRender3D(allowSoftware = false): boolean {
+export function canRender3D(allowSoftware = false): boolean {
   try {
     const nav = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
     if (nav.connection?.saveData) return false;
@@ -39,7 +39,7 @@ function canRender3D(allowSoftware = false): boolean {
 }
 
 /** Resolves after window load + an idle slot, i.e. after LCP has had its chance. */
-function afterLoadAndIdle(cb: () => void): () => void {
+export function afterLoadAndIdle(cb: () => void): () => void {
   let cancelIdle: (() => void) | undefined;
   const idle = () => {
     cancelIdle = onIdle(cb, 2500);
@@ -53,19 +53,17 @@ function afterLoadAndIdle(cb: () => void): () => void {
 }
 
 /**
- * Gatekeeper for the 3D hero. Loads the scene only when:
+ * Shared gate for every WebGL scene. A scene mounts only when:
  *  - prefers-reduced-motion is not set,
- *  - WebGL is available,
+ *  - hardware WebGL is available (see canRender3D),
  *  - the page has loaded and the main thread is idle,
- *  - the hero is visible (IntersectionObserver).
- * Otherwise the server-rendered fallback image stays as the hero visual.
+ *  - its container is near the viewport (IntersectionObserver).
+ * After mounting, `visible` pauses the render loop while the container is off-screen.
  */
-export function Hero3D({ model, colors, className = "" }: { model: HeroModel; colors: SceneColors; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null);
+export function useSceneGate(ref: RefObject<HTMLElement | null>, rootMargin = "0px") {
   const [eligible, setEligible] = useState(false);
   const [visible, setVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [ready, setReady] = useState(false);
   const eligibleRef = useRef(false);
   const visibleRef = useRef(false);
 
@@ -100,17 +98,23 @@ export function Hero3D({ model, colors, className = "" }: { model: HeroModel; co
         // Mount once (first time eligible + visible); afterwards just pause when off-screen.
         if (e.isIntersecting && eligibleRef.current) setMounted(true);
       },
-      { threshold: 0.05 },
+      { threshold: 0.01, rootMargin },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [ref, rootMargin]);
 
+  return { eligible, visible, mounted: mounted && eligible };
+}
+
+/** The 3D hero: the server-rendered fallback image stays as the hero visual until it's ready. */
+export function Hero3D({ model, colors, className = "" }: { model: HeroModel; colors: SceneColors; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { eligible, visible, mounted } = useSceneGate(ref);
+  const [ready, setReady] = useState(false);
   return (
     <div ref={ref} className={`hero-canvas ${className}`} data-ready={ready && eligible ? "true" : "false"} aria-hidden="true">
-      {mounted && eligible ? (
-        <HeroScene model={model} colors={colors} active={visible} onReady={() => setReady(true)} />
-      ) : null}
+      {mounted ? <HeroScene model={model} colors={colors} active={visible} onReady={() => setReady(true)} /> : null}
     </div>
   );
 }

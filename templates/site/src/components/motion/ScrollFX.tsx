@@ -12,13 +12,62 @@ import { onIdle } from "@/lib/idle";
  *  [data-story]            pinned storytelling section (desktop): [data-pin] stays put,
  *                          [data-depth] items rise out of z-depth, [data-progress] fills
  *  [data-tilt]             element that flattens from a 3D tilt as it scrolls into place
+ *  .card                   tilts toward the pointer with a moving glare (fine pointers only)
  */
+
+/** Pointer tilt + glare on cards. Uses the independent `rotate` property so it composes with
+ * the reveal/hover transforms instead of fighting them. */
+function cardTilt(): () => void {
+  if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return () => {};
+  const MAX = 7; // degrees
+  let frame = 0;
+  let current: HTMLElement | null = null;
+  let last: PointerEvent | null = null;
+  const apply = () => {
+    frame = 0;
+    if (!current || !last) return;
+    const r = current.getBoundingClientRect();
+    const nx = (last.clientX - r.left) / r.width - 0.5;
+    const ny = (last.clientY - r.top) / r.height - 0.5;
+    const angle = Math.min(1, Math.hypot(nx, ny) * 2) * MAX;
+    current.style.rotate = `${(-ny).toFixed(3)} ${nx.toFixed(3)} 0 ${angle.toFixed(2)}deg`;
+    current.style.setProperty("--gx", `${((nx + 0.5) * 100).toFixed(1)}%`);
+    current.style.setProperty("--gy", `${((ny + 0.5) * 100).toFixed(1)}%`);
+  };
+  const reset = (el: HTMLElement) => {
+    el.style.rotate = "";
+    el.removeAttribute("data-tilting");
+  };
+  const onMove = (e: PointerEvent) => {
+    const card = (e.target as Element | null)?.closest?.<HTMLElement>(".card") ?? null;
+    if (card !== current) {
+      if (current) reset(current);
+      current = card;
+      current?.setAttribute("data-tilting", "");
+    }
+    last = e;
+    if (current && !frame) frame = requestAnimationFrame(apply);
+  };
+  const onLeave = () => {
+    if (current) reset(current);
+    current = null;
+  };
+  document.addEventListener("pointermove", onMove, { passive: true });
+  document.documentElement.addEventListener("pointerleave", onLeave);
+  return () => {
+    document.removeEventListener("pointermove", onMove);
+    document.documentElement.removeEventListener("pointerleave", onLeave);
+    if (frame) cancelAnimationFrame(frame);
+    onLeave();
+  };
+}
 export function ScrollFX({ parallax = 1 }: { parallax?: number }) {
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mq.matches) return;
     let cancelled = false;
     let cleanup: (() => void) | undefined;
+    const stopTilt = cardTilt();
 
     const start = async () => {
       const [{ default: Lenis }, { gsap }, { ScrollTrigger }] = await Promise.all([
@@ -119,6 +168,7 @@ export function ScrollFX({ parallax = 1 }: { parallax?: number }) {
 
     return () => {
       cancelled = true;
+      stopTilt();
       cancelIdle();
       cleanup?.();
     };

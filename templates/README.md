@@ -130,6 +130,15 @@ for f in ../examples/*.json; do SITE_SPEC=$(realpath "$f") npm run build && npm 
   Loaded with `next/dynamic({ ssr: false })` only after window `load` + `requestIdleCallback` and
   only while the hero is visible (IntersectionObserver); the render loop pauses off-screen.
 
+- **Scroll showcase** (`hero.scroll_scene`, default on; off whenever `enable_3d` is off): a
+  tall section after the hero with a sticky stage. Scroll position (0..1, CSS `--p`) turns the
+  template's 3D model, moves the camera, tilts orbit rings and spins a particle shell while the
+  business's first 2–3 services step through one at a time with a progress rail. It reuses the
+  hero's lazy three.js chunk and the same gate (hardware WebGL, idle, in view); without WebGL the
+  hero art turns in CSS, and with reduced motion the section is a plain list.
+- **Card tilt**: on fine pointers, `.card`s tilt toward the cursor with a moving glare (the
+  independent `rotate` property, so it composes with reveal and hover transforms).
+
 ### Guardrails
 
 - The hero fallback image is server-rendered, `loading="eager"`, `fetchpriority="high"` and

@@ -113,6 +113,9 @@ class Hero(BaseModel):
     cta_secondary: Link | None = None
     model: HeroModel = "orb"
     enable_3d: bool = True
+    # Sticky scroll section after the hero where the 3D model turns as visitors scroll
+    # through the first services. Off whenever enable_3d is off.
+    scroll_scene: bool = True
     video: VideoAsset | None = None
     # Shown before the 3D scene loads and whenever WebGL or motion is unavailable.
     fallback_image: ImageAsset

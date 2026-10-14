@@ -767,3 +767,184 @@ html.lenis body {
   padding: 1.25rem 1.5rem;
   background: color-mix(in oklab, var(--color-surface-2, transparent) 70%, transparent);
 }
+
+/* ---------- scroll showcase: sticky 3D stage driven by scroll (--p = 0..1) ---------- */
+.showcase {
+  --p: 0;
+  position: relative;
+  height: calc(var(--steps, 3) * 85svh + 15svh);
+}
+.showcase-sticky {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.showcase-grid {
+  display: grid;
+  width: 100%;
+  gap: 1.5rem;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100%;
+  padding-block: 5.5rem 2rem;
+}
+.showcase-copy {
+  order: 2;
+  position: relative;
+}
+.showcase-visual {
+  order: 1;
+  position: relative;
+  min-height: 0;
+}
+@media (min-width: 1024px) {
+  .showcase-grid {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    grid-template-rows: none;
+    align-items: center;
+    padding-block: 6rem;
+  }
+  .showcase-copy {
+    order: 1;
+  }
+  .showcase-visual {
+    order: 2;
+    height: 100%;
+  }
+}
+.showcase-steps {
+  display: grid;
+  margin-top: 1rem;
+}
+.showcase-step {
+  grid-area: 1 / 1;
+  opacity: 0;
+  translate: 0 1.5rem;
+  filter: blur(6px);
+  transition:
+    opacity 0.6s var(--ease-out),
+    translate 0.6s var(--ease-out),
+    filter 0.6s var(--ease-out);
+}
+.showcase-step[data-on] {
+  opacity: 1;
+  translate: 0 0;
+  filter: none;
+}
+.showcase-num {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--step-1);
+  font-variant-numeric: tabular-nums;
+  color: var(--c-primary-text);
+}
+.showcase-title {
+  margin-top: 0.75rem;
+  font-size: var(--step-4);
+  line-height: 1.05;
+}
+.showcase-rail {
+  margin-top: 2rem;
+  height: 3px;
+  width: min(100%, 18rem);
+  border-radius: 99px;
+  background: color-mix(in srgb, var(--c-fg) 12%, transparent);
+  overflow: hidden;
+}
+.showcase-rail span {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--c-primary);
+  transform-origin: left;
+  transform: scaleX(var(--p));
+}
+.showcase-glow {
+  inset: 15%;
+  background: radial-gradient(circle, var(--c-primary), transparent 70%);
+  z-index: 0;
+}
+.showcase-art {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  overflow: hidden;
+  opacity: 0.9;
+  transform: rotate(calc(var(--p) * 120deg)) scale(calc(0.85 + var(--p) * 0.25));
+  transition: opacity 1s var(--ease-out);
+}
+.showcase-art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.showcase-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1.2s var(--ease-out);
+  pointer-events: none;
+}
+.showcase-canvas[data-ready="true"] {
+  opacity: 1;
+}
+.showcase-visual:has(.showcase-canvas[data-ready="true"]) .showcase-art {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .showcase {
+    height: auto;
+  }
+  .showcase-sticky {
+    position: static;
+    height: auto;
+    padding-block: 4rem;
+  }
+  .showcase-grid {
+    grid-template-rows: none;
+    padding-block: 0;
+  }
+  .showcase-visual,
+  .showcase-rail {
+    display: none;
+  }
+  .showcase-steps {
+    gap: 2.5rem;
+  }
+  .showcase-step {
+    grid-area: auto;
+    opacity: 1;
+    translate: none;
+    filter: none;
+  }
+}
+
+/* ---------- pointer tilt + glare on cards (fine pointers only; set by ScrollFX) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  .card[data-tilting] {
+    transition:
+      rotate 0.12s linear,
+      box-shadow 0.4s var(--ease-out),
+      border-color 0.3s;
+  }
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-out);
+    background: radial-gradient(
+      circle at var(--gx, 50%) var(--gy, 50%),
+      rgb(255 255 255 / 0.22),
+      transparent 55%
+    );
+  }
+  .card[data-tilting]::after {
+    opacity: 1;
+  }
+}

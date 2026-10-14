@@ -100,6 +100,7 @@ export function normalizeSpec(raw: any): SiteSpec {
         : null,
       model,
       enable_3d: h.enable_3d !== false,
+      scroll_scene: h.scroll_scene !== false,
       video:
         h.video && str(h.video.webm) && str(h.video.mp4) && str(h.video.poster)
           ? { webm: h.video.webm, mp4: h.video.mp4, poster: h.video.poster }

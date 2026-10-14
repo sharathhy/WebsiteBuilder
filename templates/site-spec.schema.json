@@ -369,6 +369,11 @@
           "title": "Enable 3D",
           "type": "boolean"
         },
+        "scroll_scene": {
+          "default": true,
+          "title": "Scroll Scene",
+          "type": "boolean"
+        },
         "video": {
           "anyOf": [
             {

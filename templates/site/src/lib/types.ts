@@ -114,6 +114,7 @@ export interface Hero {
   cta_secondary: Link | null;
   model: HeroModel;
   enable_3d: boolean;
+  scroll_scene: boolean;
   video: VideoAsset | null;
   fallback_image: ImageAsset;
 }
