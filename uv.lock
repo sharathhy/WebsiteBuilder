@@ -940,6 +940,7 @@ name = "leadforge-api"
 version = "0.1.0"
 source = { editable = "api" }
 dependencies = [
+    { name = "aiosqlite" },
     { name = "alembic" },
     { name = "anthropic" },
     { name = "arq" },
@@ -969,6 +970,7 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiosqlite", specifier = ">=0.20" },
     { name = "alembic", specifier = ">=1.14" },
     { name = "anthropic", specifier = ">=1.13.0" },
     { name = "arq", specifier = ">=0.26" },
