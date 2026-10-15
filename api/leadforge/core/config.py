@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     config_dir: Path = REPO_ROOT / "config"
     # Local object storage for screenshots and mock preview deploys (R2/S3 in production).
     storage_dir: Path = REPO_ROOT / "var" / "storage"
+    # Built dashboard (dashboard/dist) to serve from this API, so local mode needs no Node.
+    # Off by default; `leadforge.cli local` turns it on when the folder exists.
+    dashboard_dir: Path | None = None
     # Public base URL of this API, used in preview links, unsubscribe links and form endpoints.
     public_base_url: str = "http://localhost:8000"
     dashboard_url: str = "http://localhost:5173"

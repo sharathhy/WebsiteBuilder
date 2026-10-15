@@ -3,12 +3,14 @@
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import sentry_sdk
 from arq import create_pool
 from arq.connections import RedisSettings
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
@@ -104,7 +106,30 @@ def create_app() -> FastAPI:
     ):
         app.include_router(router, prefix="/api")
     app.include_router(public.router)
+    if settings.dashboard_dir is not None and (settings.dashboard_dir / "index.html").is_file():
+        _serve_dashboard(app, settings.dashboard_dir.resolve())
     return app
+
+
+# The dashboard is a same-origin single-page app; previews open in a same-origin iframe.
+DASHBOARD_CSP = (
+    "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; "
+    "frame-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"
+)
+
+
+def _serve_dashboard(app: FastAPI, root: Path) -> None:
+    """Serve the built dashboard; unknown paths get index.html for client-side routes."""
+    headers = {"Content-Security-Policy": DASHBOARD_CSP}
+
+    @app.get("/{path:path}", include_in_schema=False)
+    async def dashboard(path: str) -> FileResponse:
+        if path.startswith(("api/", "previews/", "files/")):
+            raise HTTPException(status_code=404)
+        file = (root / path).resolve()
+        if path and file.is_relative_to(root) and file.is_file():
+            return FileResponse(file, headers=headers)
+        return FileResponse(root / "index.html", headers={**headers, "Cache-Control": "no-cache"})
 
 
 app = create_app()

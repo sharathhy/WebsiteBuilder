@@ -105,6 +105,10 @@ python -m pip install --no-deps -e api -e worker
 python -m leadforge.cli local
 ```
 
+When `dashboard/dist` exists (`npm run build` in `dashboard/`, or the prebuilt copy in the
+release zip), local mode serves the dashboard itself at http://localhost:8000, so Node is
+only needed to change the dashboard or to build the animated 3D sites.
+
 ## Repository layout
 
 ```

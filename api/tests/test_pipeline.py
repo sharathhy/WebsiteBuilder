@@ -174,3 +174,24 @@ async def test_local_mode_runs_jobs_in_the_background(
     statuses = Counter(j.status for j in await db.scalars(select(Job)))
     assert statuses and set(statuses) == {JobStatus.SUCCEEDED}, statuses
     assert await db.scalar(select(func.count()).select_from(GeneratedSite))
+
+
+def test_local_mode_serves_the_built_dashboard(tmp_path, monkeypatch):
+    from fastapi.testclient import TestClient
+
+    from leadforge.core.config import get_settings
+    from leadforge.main import create_app
+
+    (tmp_path / "assets").mkdir()
+    (tmp_path / "index.html").write_text("<div id=root></div>")
+    (tmp_path / "assets" / "app.js").write_text("console.log(1)")
+    monkeypatch.setenv("DASHBOARD_DIR", str(tmp_path))
+    get_settings.cache_clear()
+    try:
+        client = TestClient(create_app())
+        assert client.get("/assets/app.js").text == "console.log(1)"
+        assert "root" in client.get("/leads/123").text  # client-side route
+        assert client.get("/api/nope").status_code == 404
+        assert client.get("/../pyproject.toml").text.startswith("<div")
+    finally:
+        get_settings.cache_clear()

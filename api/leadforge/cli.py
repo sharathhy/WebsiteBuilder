@@ -112,6 +112,9 @@ def local(port: int) -> None:
     os.environ.setdefault("JOB_RUNNER", "inline")
     os.environ.setdefault("MOCK_APIS", "true")
     os.environ.setdefault("PUBLIC_BASE_URL", f"http://localhost:{port}")
+    dist = var.parent / "dashboard" / "dist"
+    if (dist / "index.html").is_file():
+        os.environ.setdefault("DASHBOARD_DIR", str(dist))
 
     async def init_and_serve() -> None:
         import uvicorn
@@ -124,7 +127,10 @@ def local(port: int) -> None:
                 await conn.run_sync(Base.metadata.create_all)
         await seed()
         print(f"\nAPI: http://localhost:{port}/api/docs")
-        print("Dashboard: run `npm run dev` in dashboard/, then open http://localhost:5173\n")
+        if os.environ.get("DASHBOARD_DIR"):
+            print(f"Dashboard: http://localhost:{port}\n")
+        else:
+            print("Dashboard: run `npm run dev` in dashboard/, then open http://localhost:5173\n")
         # Imported after the environment is set: the app reads settings at import.
         from leadforge.main import app
 
