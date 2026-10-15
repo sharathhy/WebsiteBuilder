@@ -5,7 +5,7 @@
 #   python -m pip install -r requirements.txt
 #   python -m pip install --no-deps -e api -e worker
 fastapi>=0.110
-uvicorn[standard]>=0.29
+uvicorn[standard]>=0.54.0
 sqlalchemy[asyncio]>=2.0.30
 aiosqlite>=0.20
 alembic>=1.13
