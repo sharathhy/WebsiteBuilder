@@ -94,8 +94,8 @@ cd templates/site && npm ci
 On Windows: `winget install astral-sh.uv OpenJS.NodeJS.LTS`, and keep the project outside
 OneDrive.
 
-Without uv (plain pip; Python 3.12 or 3.13). `requirements.txt` is exported from `uv.lock`
-with `uv export --no-hashes --no-emit-workspace --no-dev -o requirements.txt`:
+Without uv (plain pip; Python 3.12 or 3.13). `requirements.txt` uses loose version ranges so
+it also installs from company package mirrors that lag behind PyPI:
 
 ```powershell
 py -3.13 -m venv C:\leadforge\venv            # or: python3.13 -m venv .venv
