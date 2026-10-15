@@ -109,6 +109,10 @@ When `dashboard/dist` exists (`npm run build` in `dashboard/`, or the prebuilt c
 release zip), local mode serves the dashboard itself at http://localhost:8000, so Node is
 only needed to change the dashboard or to build the animated 3D sites.
 
+Local mode starts on sample data (`MOCK_APIS=true`, database `var/local.db`). For real
+businesses, copy [`.env.live.example`](.env.live.example) to `.env`, add your Google Places
+API key and restart: it switches to `MOCK_APIS=false` with a separate `var/live.db`.
+
 ## Repository layout
 
 ```

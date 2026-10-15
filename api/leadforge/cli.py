@@ -19,7 +19,7 @@ from leadforge.services.targets import load_targets
 DEMO_CAMPAIGN = "Demo: dentists in Bengaluru + Austin"
 
 
-async def seed() -> None:
+async def seed(*, demo: bool = True) -> None:
     admin_email = os.environ.get("SEED_ADMIN_EMAIL", "admin@leadforge.local")
     admin_password = os.environ.get("SEED_ADMIN_PASSWORD", "admin-change-me-123")
     reviewer_email = os.environ.get("SEED_REVIEWER_EMAIL", "reviewer@leadforge.local")
@@ -44,7 +44,7 @@ async def seed() -> None:
             else:
                 print(f"exists  {role.value}: {email}")
 
-        if await db.scalar(select(Campaign).where(Campaign.name == DEMO_CAMPAIGN)) is None:
+        if demo and await db.scalar(select(Campaign).where(Campaign.name == DEMO_CAMPAIGN)) is None:
             d = targets.defaults
             db.add(
                 Campaign(
@@ -104,15 +104,26 @@ def local(port: int) -> None:
     (via uv) and Node. Mocked APIs unless MOCK_APIS=false is set. Works on Windows."""
     from pathlib import Path
 
-    var = Path(__file__).resolve().parents[2] / "var"
+    from dotenv import dotenv_values
+
+    root = Path(__file__).resolve().parents[2]
+    # Keys in .env (repo root or the current folder) count as set, so the defaults below
+    # never override them. Shell variables still win over .env.
+    for env_file in (root / ".env", Path.cwd() / ".env"):
+        for key, value in dotenv_values(env_file).items():
+            if value is not None:
+                os.environ.setdefault(key, value)
+    os.environ.setdefault("MOCK_APIS", "true")
+    live = os.environ["MOCK_APIS"].strip().lower() in ("false", "0", "no", "off")
+    var = root / "var"
     var.mkdir(exist_ok=True)
-    db_file = (var / "local.db").as_posix()
+    # Real data and sample data live in separate files, so the two never mix.
+    db_file = (var / ("live.db" if live else "local.db")).as_posix()
     os.environ.setdefault("DATABASE_URL", f"sqlite+aiosqlite:///{db_file}")
     os.environ.setdefault("STORAGE_DIR", str(var / "storage"))
     os.environ.setdefault("JOB_RUNNER", "inline")
-    os.environ.setdefault("MOCK_APIS", "true")
     os.environ.setdefault("PUBLIC_BASE_URL", f"http://localhost:{port}")
-    dist = var.parent / "dashboard" / "dist"
+    dist = root / "dashboard" / "dist"
     if (dist / "index.html").is_file():
         os.environ.setdefault("DASHBOARD_DIR", str(dist))
 
@@ -125,7 +136,13 @@ def local(port: int) -> None:
         if os.environ["DATABASE_URL"].startswith("sqlite"):
             async with get_engine().begin() as conn:
                 await conn.run_sync(Base.metadata.create_all)
-        await seed()
+        await seed(demo=not live)
+        if live:
+            print("\nLIVE mode: real Google Places data. Paid API calls stop at")
+            print("monthly_budget_usd in config/agency.yaml; email is only sent on Approve & send.")
+            missing = [k for k in ("GOOGLE_PLACES_API_KEY",) if not os.environ.get(k)]
+            if missing:
+                print(f"WARNING: {', '.join(missing)} is not set, so searches use sample data.")
         print(f"\nAPI: http://localhost:{port}/api/docs")
         if os.environ.get("DASHBOARD_DIR"):
             print(f"Dashboard: http://localhost:{port}\n")
