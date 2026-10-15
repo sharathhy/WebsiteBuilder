@@ -77,6 +77,23 @@ Open http://localhost:5173 and sign in as `admin@leadforge.local` /
 `admin-change-me-123`. Running without Docker is covered in
 [docs/runbook.md](docs/runbook.md).
 
+### Without Docker (Windows, macOS or Linux)
+
+Local mode needs only [uv](https://docs.astral.sh/uv/) and Node 22: it uses a SQLite file
+in `var/` and runs jobs inside the API process, so there is no Postgres, Redis or worker.
+
+```bash
+uv sync                                    # installs Python 3.13 and dependencies
+uv run python -m leadforge.cli local       # API on :8000, creates the login users
+# second terminal
+cd dashboard && npm ci && npm run dev      # http://localhost:5173
+# optional, for the animated 3D sites (otherwise the simpler built-in builder is used)
+cd templates/site && npm ci
+```
+
+On Windows: `winget install astral-sh.uv OpenJS.NodeJS.LTS`, and keep the project outside
+OneDrive.
+
 ## Repository layout
 
 ```

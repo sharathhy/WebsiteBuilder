@@ -18,6 +18,9 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+psycopg://leadforge:leadforge@localhost:5432/leadforge"
     redis_url: str = "redis://localhost:6379/0"
+    # "redis": jobs go to the ARQ workers. "inline": the API runs jobs itself in a background
+    # task (local mode, `python -m leadforge.cli local`: no Redis, no worker process).
+    job_runner: Literal["redis", "inline"] = "redis"
 
     jwt_secret: SecretStr = SecretStr("dev-only-change-me-dev-only-change-me")
     jwt_algorithm: str = "HS256"

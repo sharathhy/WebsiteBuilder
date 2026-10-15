@@ -4,7 +4,7 @@ from collections import Counter
 from pathlib import Path
 
 from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from leadforge.models import Audit, Business, Campaign, EmailDraft, GeneratedSite, Job, Website
 from leadforge.models.enums import (
@@ -150,3 +150,27 @@ async def test_regenerate_backfills_the_page_list(
     assert newest is not None and newest.id != site_id
     assert newest.page_parity and newest.page_parity["missing"] == []
     assert newest.page_parity["expected"] == len(expected)
+
+
+async def test_local_mode_runs_jobs_in_the_background(
+    db: AsyncSession, sessionmaker: async_sessionmaker[AsyncSession], services: Services
+) -> None:
+    """Local mode (no Redis): dispatching starts a background task that runs the whole chain."""
+    import asyncio
+
+    from leadforge.pipeline.runner import BackgroundDispatcher
+
+    bg = BackgroundDispatcher(sessionmaker, services)
+    campaign = Campaign(name="local", cities=["austin"], categories=["dentists"],
+                        max_results_per_target=6)  # fmt: skip
+    db.add(campaign)
+    await db.commit()
+    await start_campaign(db, campaign, load_targets(), bg)
+    for _ in range(600):
+        if bg._task is None or bg._task.done():
+            break
+        await asyncio.sleep(0.1)
+    db.expire_all()
+    statuses = Counter(j.status for j in await db.scalars(select(Job)))
+    assert statuses and set(statuses) == {JobStatus.SUCCEEDED}, statuses
+    assert await db.scalar(select(func.count()).select_from(GeneratedSite))

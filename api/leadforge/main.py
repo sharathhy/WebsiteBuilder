@@ -40,12 +40,24 @@ log = logging.getLogger("leadforge.api")
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     settings = get_settings()
     app.state.redis = None
-    if settings.env != "test":
+    app.state.local_dispatcher = None
+    if settings.job_runner == "inline" and settings.env != "test":
+        from leadforge.db.session import get_sessionmaker
+        from leadforge.pipeline.registry import load_all
+        from leadforge.pipeline.runner import BackgroundDispatcher
+        from leadforge.services.container import get_services
+
+        load_all()
+        app.state.local_dispatcher = BackgroundDispatcher(get_sessionmaker(), get_services())
+        log.info("local mode: jobs run inside the API process (no Redis)")
+    elif settings.env != "test":
         try:
             app.state.redis = await create_pool(RedisSettings.from_dsn(settings.redis_url))
         except Exception:
             log.warning("redis unavailable at startup; queue endpoints will return 503")
     yield
+    if app.state.local_dispatcher is not None:
+        await app.state.local_dispatcher.aclose()
     if app.state.redis is not None:
         await app.state.redis.aclose()
 

@@ -1,6 +1,7 @@
 """Management commands.
 
 python -m leadforge.cli seed   # idempotent: dev users + a demo campaign, no external calls
+python -m leadforge.cli local  # run everything without Docker, Postgres or Redis (SQLite)
 """
 
 import argparse
@@ -98,6 +99,43 @@ async def demo(cities: list[str], categories: list[str], max_results: int) -> No
     print(f"outreach drafts awaiting approval: {drafts}")
 
 
+def local(port: int) -> None:
+    """Local mode: SQLite file + in-process job runner, so the only requirements are Python
+    (via uv) and Node. Mocked APIs unless MOCK_APIS=false is set. Works on Windows."""
+    from pathlib import Path
+
+    var = Path(__file__).resolve().parents[2] / "var"
+    var.mkdir(exist_ok=True)
+    db_file = (var / "local.db").as_posix()
+    os.environ.setdefault("DATABASE_URL", f"sqlite+aiosqlite:///{db_file}")
+    os.environ.setdefault("STORAGE_DIR", str(var / "storage"))
+    os.environ.setdefault("JOB_RUNNER", "inline")
+    os.environ.setdefault("MOCK_APIS", "true")
+    os.environ.setdefault("PUBLIC_BASE_URL", f"http://localhost:{port}")
+
+    async def init_and_serve() -> None:
+        import uvicorn
+
+        from leadforge.db.base import Base
+        from leadforge.db.session import get_engine
+
+        if os.environ["DATABASE_URL"].startswith("sqlite"):
+            async with get_engine().begin() as conn:
+                await conn.run_sync(Base.metadata.create_all)
+        await seed()
+        print(f"\nAPI: http://localhost:{port}/api/docs")
+        print("Dashboard: run `npm run dev` in dashboard/, then open http://localhost:5173\n")
+        # Imported after the environment is set: the app reads settings at import.
+        from leadforge.main import app
+
+        server = uvicorn.Server(uvicorn.Config(app, host="127.0.0.1", port=port))
+        await server.serve()
+
+    # asyncio.run uses the platform default loop (Proactor on Windows), which the Next.js
+    # site builder needs for subprocesses.
+    asyncio.run(init_and_serve())
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="leadforge")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -106,9 +144,13 @@ def main() -> None:
     d.add_argument("--cities", default="bengaluru,austin")
     d.add_argument("--categories", default="dentists")
     d.add_argument("--max-results", type=int, default=30)
+    loc = sub.add_parser("local", help="run the API without Docker/Postgres/Redis (SQLite)")
+    loc.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()
     if args.command == "seed":
         asyncio.run(seed())
+    elif args.command == "local":
+        local(args.port)
     elif args.command == "demo":
         asyncio.run(demo(args.cities.split(","), args.categories.split(","), args.max_results))
 

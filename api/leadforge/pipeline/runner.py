@@ -1,5 +1,6 @@
 """Runs one Job row: status transitions, retries with backoff, and dead-lettering."""
 
+import asyncio
 import logging
 import uuid
 from collections import deque
@@ -116,3 +117,26 @@ class InlineDispatcher:
             except Retry:
                 self.pending.append(job_id)
         return ran
+
+
+class BackgroundDispatcher(InlineDispatcher):
+    """Local mode: the API process runs jobs itself, one at a time, in a background task."""
+
+    def __init__(self, sessionmaker: async_sessionmaker[AsyncSession], services: Services) -> None:
+        super().__init__(sessionmaker, services)
+        self._task: asyncio.Task[None] | None = None
+
+    async def dispatch(self, job: Job) -> None:
+        self.pending.append(job.id)
+        if self._task is None or self._task.done():
+            self._task = asyncio.create_task(self._run())
+
+    async def _run(self) -> None:
+        try:
+            await self.drain()
+        except Exception:
+            log.exception("background job runner stopped")
+
+    async def aclose(self) -> None:
+        if self._task is not None and not self._task.done():
+            self._task.cancel()

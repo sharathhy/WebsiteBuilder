@@ -1,12 +1,13 @@
 """Build a SiteSpec into a static site: Next.js templates (primary) or static fallback."""
 
 import asyncio
-import fcntl
 import json
 import os
 import shutil
+import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import IO
 
 from leadforge.core.config import Settings
 from leadforge.schemas.site_spec import SiteSpec
@@ -43,6 +44,32 @@ def choose_builder(settings: Settings) -> str:
 _BUILD_LOCK = asyncio.Lock()
 
 
+def _lock_file(f: IO[str], lock: bool) -> None:
+    """Exclusive cross-process lock on an open file (fcntl on Linux/macOS, msvcrt on Windows)."""
+    if sys.platform == "win32":
+        import msvcrt
+
+        f.seek(0)
+        if not lock:
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)  # type: ignore[attr-defined]
+            return
+        while True:  # LK_LOCK gives up after ~10 s; a build can take minutes
+            try:
+                msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1)  # type: ignore[attr-defined]
+                return
+            except OSError:
+                continue
+    else:
+        import fcntl
+
+        fcntl.flock(f, fcntl.LOCK_EX if lock else fcntl.LOCK_UN)
+
+
+def _npm() -> str:
+    # On Windows npm is npm.cmd; resolve the full path so subprocess can start it.
+    return shutil.which("npm") or "npm"
+
+
 async def _run(cmd: list[str], cwd: Path, env: dict[str, str], timeout: int) -> tuple[int, str]:
     proc = await asyncio.create_subprocess_exec(
         *cmd, cwd=cwd, env=env, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT
@@ -73,7 +100,7 @@ async def build_site(
     lock_path = template / ".build.lock"
     async with _BUILD_LOCK:
         with lock_path.open("w") as lock:
-            await asyncio.to_thread(fcntl.flock, lock, fcntl.LOCK_EX)
+            await asyncio.to_thread(_lock_file, lock, True)
             try:
                 gen = template / "public" / "generated"
                 shutil.rmtree(gen, ignore_errors=True)
@@ -88,17 +115,17 @@ async def build_site(
                     "BASE_PATH": base_path,
                     "NEXT_TELEMETRY_DISABLED": "1",
                 }
-                code, log = await _run(["npm", "run", "build"], template, env, timeout=900)
+                code, log = await _run([_npm(), "run", "build"], template, env, timeout=900)
                 if code != 0 or not (template / "out" / "index.html").exists():
                     raise BuildError(f"next build failed ({code}): {log[-1500:]}")
                 budget_code, budget_log = await _run(
-                    ["npm", "run", "check:budget"], template, env, timeout=120
+                    [_npm(), "run", "check:budget"], template, env, timeout=120
                 )
                 shutil.copytree(template / "out", work / "out")
                 write_redirects(spec, work / "out")
             finally:
                 shutil.rmtree(template / "public" / "generated", ignore_errors=True)
-                fcntl.flock(lock, fcntl.LOCK_UN)
+                _lock_file(lock, False)
     js_kb = None
     for line in budget_log.splitlines():
         if "KB" in line and any(ch.isdigit() for ch in line):

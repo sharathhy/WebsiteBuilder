@@ -15,7 +15,11 @@ from leadforge.core.config import get_settings
 
 @lru_cache
 def get_engine() -> AsyncEngine:
-    return create_async_engine(get_settings().database_url, pool_pre_ping=True)
+    url = get_settings().database_url
+    if url.startswith("sqlite"):
+        # Local mode: wait for the other writer instead of failing with "database is locked".
+        return create_async_engine(url, connect_args={"timeout": 30})
+    return create_async_engine(url, pool_pre_ping=True)
 
 
 @lru_cache
