@@ -22,7 +22,10 @@ async def readiness(request: Request, response: Response, db: DbSession) -> dict
     except Exception as exc:
         checks["database"] = f"error: {type(exc).__name__}"
     redis = getattr(request.app.state, "redis", None)
-    if redis is None:
+    local = getattr(request.app.state, "local_dispatcher", None) is not None
+    if local:
+        checks["queue"] = "ok (local mode, in-process)"
+    elif redis is None:
         checks["redis"] = "not configured"
     else:
         try:
@@ -30,7 +33,11 @@ async def readiness(request: Request, response: Response, db: DbSession) -> dict
             checks["redis"] = "ok"
         except Exception as exc:
             checks["redis"] = f"error: {type(exc).__name__}"
-    healthy = checks["database"] == "ok" and checks["redis"] in ("ok", "not configured")
+    healthy = checks["database"] == "ok" and checks.get("redis", "ok") in ("ok", "not configured")
     if not healthy:
         response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    return {"status": "ok" if healthy else "degraded", "checks": checks}
+    return {
+        "status": "ok" if healthy else "degraded",
+        "mode": "local" if local else "standard",
+        "checks": checks,
+    }

@@ -56,6 +56,7 @@ export interface TargetsConfig {
 
 export interface Readiness {
   status: "ok" | "degraded";
+  mode?: "local" | "standard";
   checks: Record<string, string>;
 }
 

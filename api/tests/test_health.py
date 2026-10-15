@@ -28,3 +28,14 @@ async def test_metrics_requires_admin(client, users) -> None:  # type: ignore[no
     ).status_code == 403
     resp = await client.get("/api/metrics", headers=await login(client, ADMIN))
     assert resp.status_code == 200 and "leadforge_spend_usd_month 0.0000" in resp.text
+
+
+async def test_ping_runs_through_the_dispatcher(client, users) -> None:  # type: ignore[no-untyped-def]
+    """The queue check works without Redis too (local mode uses the in-process runner)."""
+    from conftest import ADMIN, login
+
+    headers = await login(client, ADMIN)
+    resp = await client.post("/api/jobs/ping", headers=headers)
+    assert resp.status_code == 202, resp.text
+    jobs = (await client.get("/api/jobs", headers=headers)).json()
+    assert jobs[0]["kind"] == "ping"

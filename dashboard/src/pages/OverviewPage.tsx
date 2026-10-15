@@ -42,7 +42,7 @@ export function OverviewPage() {
               Object.entries(health.data.checks).map(([name, value]) => (
                 <li key={name} className="flex items-center justify-between">
                   <span className="capitalize">{name}</span>
-                  <Badge tone={value === "ok" ? "green" : "red"}>{value}</Badge>
+                  <Badge tone={value.startsWith("ok") ? "green" : "red"}>{value}</Badge>
                 </li>
               ))
             ) : (
@@ -53,7 +53,9 @@ export function OverviewPage() {
         <Card>
           <CardTitle>Queue check</CardTitle>
           <p className="mt-2 text-sm text-slate-600">
-            Sends a no-op job through the API, Redis and a worker, and records it in Postgres.
+            {health.data?.mode === "local"
+              ? "Sends a no-op job through the API and the in-process job runner, and records it in the local database."
+              : "Sends a no-op job through the API, Redis and a worker, and records it in Postgres."}
           </p>
           <Button
             className="mt-4 w-full sm:w-auto"
